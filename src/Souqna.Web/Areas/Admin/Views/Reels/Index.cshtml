@@ -1,0 +1,73 @@
+@model List<Souqna.Core.Entities.Video>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "مراقبة وإدارة فيديوهات الريلز";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-camera-reels text-danger me-2"></i> مراقبة محتوى الريلز</h3>
+        <p class="text-muted small mb-0">مراقبة الفيديوهات القصيرة، تحديد الفيديوهات الممولة، وحذف المحتوى غير اللائق فوراً.</p>
+    </div>
+</div>
+
+<div class="card card-souqna p-4">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover mb-0">
+            <thead class="table-light">
+                <tr class="small text-muted">
+                    <th>الفيديو</th>
+                    <th>المتجر</th>
+                    <th>المنتج المرتبط</th>
+                    <th>المدة</th>
+                    <th>المشاهدات / الإعجابات</th>
+                    <th>ممكّن كممول</th>
+                    <th>الحالة</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var vid in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="@(vid.ThumbnailUrl ?? "/images/reels-default-thumb.jpg")" class="rounded border" style="width: 44px; height: 55px; object-fit: cover;" alt="@vid.Title">
+                                <div>
+                                    <div class="fw-bold small text-truncate" style="max-width: 200px;">@vid.Title</div>
+                                    <a asp-area="" asp-controller="Reels" asp-action="Index" asp-route-id="@vid.Id" target="_blank" class="small text-muted">
+                                        مشاهدة في الريلز <i class="bi bi-play-circle" style="font-size: 0.75rem;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@vid.Store?.StoreName</td>
+                        <td>@(vid.Product?.Name ?? "بدون منتج")</td>
+                        <td><span class="badge bg-light text-dark border">@vid.DurationSeconds ثانية</span></td>
+                        <td class="small">
+                            <div><i class="bi bi-eye me-1"></i>@vid.ViewsCount</div>
+                            <div class="text-danger"><i class="bi bi-heart-fill me-1"></i>@vid.LikesCount</div>
+                        </td>
+                        <td>
+                            <form asp-action="ToggleSponsored" asp-route-id="@vid.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm @(vid.IsSponsored ? "btn-warning" : "btn-outline-secondary") rounded-pill px-3">
+                                    @(vid.IsSponsored ? "ممول (Sponsored)" : "عادي")
+                                </button>
+                            </form>
+                        </td>
+                        <td><span class="badge bg-success">@vid.Status</span></td>
+                        <td>
+                            <form asp-action="Delete" asp-route-id="@vid.Id" method="post" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفيديو؟');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                    حذف
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

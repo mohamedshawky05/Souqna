@@ -1,0 +1,88 @@
+@model Souqna.Core.Entities.Order
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = $"تفاصيل الطلب {Model.OrderNumber}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">تفاصيل الطلب: @Model.OrderNumber</h3>
+        <span class="text-muted small">تاريخ الطلب: @Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</span>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill btn-sm">العودة للطلبات</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <h5 class="fw-bold mb-3">الشحنات المقسمة على المتاجر (@Model.StoreOrders.Count شحنات)</h5>
+        @foreach (var so in Model.StoreOrders)
+        {
+            <div class="card card-souqna p-4 mb-3">
+                <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+                    <div class="fw-bold fs-6">
+                        <i class="bi bi-shop text-accent me-1"></i> @(so.Store?.StoreName ?? "متجر")
+                    </div>
+                    <span class="badge bg-primary">الحالة: @so.Status</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle">
+                        <thead class="table-light">
+                            <tr class="small text-muted">
+                                <th>المنتج</th>
+                                <th>السعر</th>
+                                <th>الكمية</th>
+                                <th>الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var it in so.Items)
+                            {
+                                <tr>
+                                    <td>@it.ProductName</td>
+                                    <td>@it.UnitPrice.ToString("N0") ج.م</td>
+                                    <td>@it.Quantity</td>
+                                    <td class="fw-bold text-accent">@it.TotalPrice.ToString("N0") ج.م</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between small text-muted pt-2 border-top">
+                    <span>مصاريف شحن المتجر: @so.DeliveryFee.ToString("N0") ج.م</span>
+                    <strong class="text-dark">إجمالي شحنة المتجر: @so.TotalAmount.ToString("N0") ج.م</strong>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card card-souqna p-4 mb-3">
+            <h6 class="fw-bold mb-3">ملخص الفاتورة العامة</h6>
+            <div class="d-flex justify-content-between small mb-2">
+                <span class="text-muted">المجموع الفرعي:</span>
+                <span class="fw-bold">@Model.Subtotal.ToString("N0") ج.م</span>
+            </div>
+            <div class="d-flex justify-content-between small mb-2">
+                <span class="text-muted">إجمالي الشحن:</span>
+                <span class="fw-bold text-success">@Model.DeliveryFee.ToString("N0") ج.م</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between align-items-baseline mb-3">
+                <span class="fw-bold">الإجمالي الكلي:</span>
+                <strong class="fs-4 text-accent">@Model.TotalAmount.ToString("N0") ج.م</strong>
+            </div>
+            <div class="small text-muted">
+                طريقة الدفع: <strong>@Model.PaymentMethod</strong>
+            </div>
+        </div>
+
+        <div class="card card-souqna p-4">
+            <h6 class="fw-bold mb-2">بيانات العميل والعنوان</h6>
+            <div class="small text-muted lh-base">
+                @Model.DeliveryAddressJson
+            </div>
+        </div>
+    </div>
+</div>

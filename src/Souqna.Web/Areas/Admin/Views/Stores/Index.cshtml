@@ -1,0 +1,90 @@
+@model List<Souqna.Core.Entities.Store>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "إدارة المتاجر والبائعين";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-shop text-primary me-2"></i> المتاجر وأصحاب المشاريع</h3>
+        <p class="text-muted small mb-0">إدارة حسابات التجار، تفعيل أو تجميد المتاجر، ومنح أو سحب شارات التوثيق.</p>
+    </div>
+</div>
+
+<div class="card card-souqna p-4">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover mb-0">
+            <thead class="table-light">
+                <tr class="small text-muted">
+                    <th>المتجر واللوجو</th>
+                    <th>التاجر والبريد</th>
+                    <th>المحافظة</th>
+                    <th>المنتجات</th>
+                    <th>التوثيق</th>
+                    <th>الحالة</th>
+                    <th>إجراءات الإدارة</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var store in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="@(store.LogoUrl ?? "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=80")" class="rounded-circle border" style="width: 44px; height: 44px; object-fit: cover;" alt="@store.StoreName">
+                                <div>
+                                    <div class="fw-bold">@store.StoreName</div>
+                                    <a asp-area="" asp-controller="Store" asp-action="Details" asp-route-slug="@store.Slug" target="_blank" class="small text-decoration-none text-muted">
+                                        معاينة <i class="bi bi-box-arrow-up-right" style="font-size: 0.7rem;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="fw-bold small">@(store.Seller?.FullName ?? "تاجر")</div>
+                            <small class="text-muted">@store.Seller?.Email</small>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">@store.City</span></td>
+                        <td>@store.Products.Count منتج</td>
+                        <td>
+                            @if (store.IsVerified)
+                            {
+                                <span class="badge bg-success"><i class="bi bi-patch-check-fill me-1"></i> موثق</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">غير موثق</span>
+                            }
+                        </td>
+                        <td>
+                            @if (store.IsActive)
+                            {
+                                <span class="badge bg-success">نشط</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">موقوف</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <form asp-action="ToggleBadge" asp-route-id="@store.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm @(store.IsVerified ? "btn-outline-warning" : "btn-outline-success") rounded-pill px-3" title="تبديل شارة التوثيق">
+                                        @(store.IsVerified ? "سحب التوثيق" : "منح التوثيق")
+                                    </button>
+                                </form>
+                                <form asp-action="ToggleActive" asp-route-id="@store.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm @(store.IsActive ? "btn-outline-danger" : "btn-outline-success") rounded-pill px-3" title="تبديل حالة التفعيل">
+                                        @(store.IsActive ? "إيقاف" : "تفعيل")
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

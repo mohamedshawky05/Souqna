@@ -1,0 +1,95 @@
+@model Souqna.Web.ViewModels.ProductFormViewModel
+@{
+    Layout = "_SellerLayout";
+    ViewData["Title"] = "تعديل المنتج";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">تعديل المنتج: @Model.Name</h3>
+    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill btn-sm">العودة للقائمة</a>
+</div>
+
+<div class="card card-souqna p-4 max-w-2xl">
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label asp-for="Name" class="form-label small fw-bold">اسم المنتج *</label>
+                <input asp-for="Name" class="form-control" required />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="CategoryId" class="form-label small fw-bold">القسم *</label>
+                <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select" required></select>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Price" class="form-label small fw-bold">السعر الأساسي (ج.م) *</label>
+                <input asp-for="Price" class="form-control" type="number" step="0.5" required />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="SalePrice" class="form-label small fw-bold">سعر الخصم (اختياري)</label>
+                <input asp-for="SalePrice" class="form-control" type="number" step="0.5" />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="StockQuantity" class="form-label small fw-bold">الكمية المتوفرة بالمخزن *</label>
+                <input asp-for="StockQuantity" class="form-control" type="number" min="0" required />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="SKU" class="form-label small fw-bold">رمز المنتج (SKU)</label>
+                <input asp-for="SKU" class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="MainImage" class="form-label small fw-bold">تغيير الصورة الرئيسية</label>
+                <input asp-for="MainImage" class="form-control" type="file" accept="image/*" />
+                @if (!string.IsNullOrEmpty(Model.ExistingImageUrl))
+                {
+                    <div class="mt-2">
+                        <img src="@Model.ExistingImageUrl" class="rounded border" style="width: 60px; height: 60px; object-fit: cover;" alt="الصورة الحالية">
+                    </div>
+                }
+                <span asp-validation-for="MainImage" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="AdditionalImages" class="form-label small fw-bold">إضافة صور أخرى (JPG أو PNG أو WebP، حتى 5 ميجابايت للصورة)</label>
+                <input asp-for="AdditionalImages" class="form-control" type="file" accept=".jpg,.jpeg,.png,.webp" multiple />
+                @if (Model.AdditionalImageUrls.Count > 0)
+                {
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        @foreach (var imageUrl in Model.AdditionalImageUrls)
+                        {
+                            <img src="@imageUrl" class="rounded border" style="width:60px;height:60px;object-fit:cover" alt="صورة إضافية حالية">
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Description" class="form-label small fw-bold">وصف وتفاصيل المنتج *</label>
+                <textarea asp-for="Description" class="form-control" rows="4" required></textarea>
+            </div>
+
+            <div class="col-12">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" asp-for="IsPublished" id="pubCheck">
+                    <label class="form-check-label small fw-bold" for="pubCheck">نشر المنتج في السوق</label>
+                </div>
+            </div>
+
+            <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-accent btn-lg px-5 rounded-pill shadow">
+                    حفظ التعديلات <i class="bi bi-check-lg ms-1"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

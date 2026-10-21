@@ -1,0 +1,87 @@
+@model List<Souqna.Core.Entities.SubscriptionPlan>
+@{
+    ViewData["Title"] = "باقات الاشتراك وأسعار التجار - سوقنا";
+}
+
+<div class="container py-5">
+    <div class="text-center max-w-xl mx-auto mb-5" style="max-width: 650px;">
+        <span class="badge bg-primary px-3 py-1 rounded-pill mb-2">خطط وأسعار شفافة</span>
+        <h2 class="fw-bold mb-2">اختر الباقة المناسبة لتنمية متجرك في مصر</h2>
+        <p class="text-muted">ابدأ مجاناً تماماً، ثم قم بالترقية بسهولة مع نمو مبيعاتك ومنتجاتك وفيديوهاتك القصيرة بدون أي عمولات خفية.</p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-5">
+        @foreach (var plan in Model)
+        {
+            bool isFeatured = plan.Slug == "pro";
+            <div class="col">
+                <div class="card card-souqna h-100 p-4 text-center position-relative @(isFeatured ? "border-primary border-2 shadow-lg" : "")">
+                    @if (isFeatured)
+                    {
+                        <span class="position-absolute top-0 start-50 translate-middle badge bg-primary px-3 py-1 rounded-pill shadow">
+                            الأكثر شعبية
+                        </span>
+                    }
+
+                    <h5 class="fw-bold mt-2 mb-1">@plan.NameAr</h5>
+                    <p class="text-muted small mb-3" style="min-height: 40px;">@plan.DescriptionAr</p>
+
+                    <div class="my-3 py-3 bg-light rounded-3 border">
+                        <span class="display-6 fw-bold text-accent">@plan.PriceMonthly.ToString("N0")</span>
+                        <span class="text-muted small">ج.م / شهرياً</span>
+                        @if (plan.PriceYearly > 0)
+                        {
+                            <div class="text-success small mt-1">أو @plan.PriceYearly.ToString("N0") ج.م سنوياً (وفر شهرين)</div>
+                        }
+                    </div>
+
+                    <!-- Quotas & Entitlements -->
+                    <ul class="list-unstyled text-start small mb-4 d-flex flex-column gap-2 flex-grow-1">
+                        <li class="d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>حتى <strong>@plan.MaxActiveProducts</strong> منتج نشط</span>
+                        </li>
+                        <li class="d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>حتى <strong>@plan.MaxPublishedVideos</strong> فيديو ريلز</span>
+                        </li>
+                        <li class="d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>أقصى مدة للفيديو: <strong>@plan.MaxVideoDurationSeconds ثانية</strong></span>
+                        </li>
+                        <li class="d-flex align-items-center gap-2">
+                            <i class="bi @(plan.AllowsCoupons ? "bi-check-circle-fill text-success" : "bi-x-circle text-muted")"></i>
+                            <span class="@(plan.AllowsCoupons ? "" : "text-muted")">كوبونات وتخفيضات المتجر</span>
+                        </li>
+                        <li class="d-flex align-items-center gap-2">
+                            <i class="bi @(plan.AllowsCsvExportImport ? "bi-check-circle-fill text-success" : "bi-x-circle text-muted")"></i>
+                            <span class="@(plan.AllowsCsvExportImport ? "" : "text-muted")">استيراد المنتجات عبر CSV</span>
+                        </li>
+                        <li class="d-flex align-items-center gap-2">
+                            <i class="bi @(plan.HasAdvancedAnalytics ? "bi-check-circle-fill text-success" : "bi-x-circle text-muted")"></i>
+                            <span class="@(plan.HasAdvancedAnalytics ? "" : "text-muted")">تحليلات متقدمة وسلوك الزوار</span>
+                        </li>
+                    </ul>
+
+                    <form asp-action="Subscribe" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="planId" value="@plan.Id" />
+                        <input type="hidden" name="interval" value="@Souqna.Core.Enums.BillingInterval.Monthly" />
+                        @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Seller") || User.IsInRole("Admin")))
+                        {
+                            <button type="submit" class="btn @(isFeatured ? "btn-accent" : "btn-outline-accent") w-100 rounded-pill py-2 fw-bold">
+                                اختيار هذه الباقة
+                            </button>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Register" class="btn @(isFeatured ? "btn-accent" : "btn-outline-accent") w-100 rounded-pill py-2 fw-bold">
+                                اشترك وابدأ البيع
+                            </a>
+                        }
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>

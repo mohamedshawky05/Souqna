@@ -1,0 +1,141 @@
+@model Souqna.Web.ViewModels.AdminDashboardViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "لوحة الإدارة العامة";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">لوحة الإدارة العامة لمنصة سوقنا</h3>
+        <p class="text-muted small mb-0">نظرة شاملة على حجم التداول، المتاجر المعتمدة، طابور التوثيق والطلبات.</p>
+    </div>
+</div>
+
+<!-- Platform KPI Metric Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card card-souqna p-3 border-start border-4 border-success">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small text-muted fw-bold">حجم التداول (GMV)</span>
+                <i class="bi bi-cash-stack fs-4 text-success"></i>
+            </div>
+            <div class="fs-4 fw-bold">@Model.TotalGmv.ToString("N0") <small class="fs-6 text-muted">ج.م</small></div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card card-souqna p-3 border-start border-4 border-warning">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small text-muted fw-bold">طلبات توثيق معلقة</span>
+                <i class="bi bi-hourglass-split fs-4 text-warning"></i>
+            </div>
+            <div class="fs-4 fw-bold text-warning">@Model.PendingVerificationsCount</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card card-souqna p-3 border-start border-4 border-primary">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small text-muted fw-bold">المتاجر المسجلة</span>
+                <i class="bi bi-shop fs-4 text-primary"></i>
+            </div>
+            <div class="fs-4 fw-bold">@Model.TotalStores <small class="fs-6 text-success">(@Model.VerifiedStores موثق)</small></div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card card-souqna p-3 border-start border-4 border-info">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small text-muted fw-bold">المنتجات والريلز</span>
+                <i class="bi bi-grid fs-4 text-info"></i>
+            </div>
+            <div class="fs-4 fw-bold">@Model.TotalProducts <small class="fs-6 text-muted">منتج / @Model.TotalVideos ريلز</small></div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Identity Verification Queue Section -->
+<div class="card card-souqna p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-shield-exclamation me-1"></i> طابور مراجعة بطاقات الرقم القومي والتوثيق</h5>
+        <a asp-controller="Verification" asp-action="Index" class="btn btn-outline-primary btn-sm rounded-pill px-3">عرض الطابور الكامل</a>
+    </div>
+
+    @if (!Model.PendingVerifications.Any())
+    {
+        <div class="p-3 bg-light text-center rounded-3 small text-muted">
+            <i class="bi bi-check-circle-fill text-success fs-5 me-1"></i> لا توجد طلبات توثيق هوية معلقة حالياً. جميع الطلبات تمت مراجعتها!
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle table-hover mb-0">
+                <thead class="table-light">
+                    <tr class="small text-muted">
+                        <th>المتجر</th>
+                        <th>الاسم القانوني</th>
+                        <th>الرقم القومي</th>
+                        <th>تاريخ التقديم</th>
+                        <th>الحالة</th>
+                        <th>إجراء الفحص</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var req in Model.PendingVerifications)
+                    {
+                        <tr>
+                            <td class="fw-bold">@req.Store?.StoreName</td>
+                            <td>@req.FullLegalName</td>
+                            <td><code>@req.NationalIdNumber</code></td>
+                            <td class="small text-muted">@req.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td><span class="badge bg-warning text-dark">@req.Status</span></td>
+                            <td>
+                                <a asp-controller="Verification" asp-action="Review" asp-route-id="@req.Id" class="btn btn-sm btn-accent rounded-pill px-3">
+                                    <i class="bi bi-eye me-1"></i> مراجعة المستندات والقرار
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<!-- Recent Orders Section -->
+<div class="card card-souqna p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">أحدث عمليات الشراء في المنصة</h5>
+        <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3">عرض جميع الطلبات</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr class="small text-muted">
+                    <th>رقم الطلب</th>
+                    <th>تاريخ الإنشاء</th>
+                    <th>عدد الشحنات</th>
+                    <th>الإجمالي</th>
+                    <th>الحالة</th>
+                    <th>إجراء</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ord in Model.RecentOrders)
+                {
+                    <tr>
+                        <td class="fw-bold text-primary">@ord.OrderNumber</td>
+                        <td class="small text-muted">@ord.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                        <td>@ord.StoreOrders.Count شحنة</td>
+                        <td class="fw-bold text-accent">@ord.TotalAmount.ToString("N0") ج.م</td>
+                        <td><span class="badge bg-primary">@ord.Status</span></td>
+                        <td>
+                            <a asp-controller="Orders" asp-action="Details" asp-route-id="@ord.Id" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                تفاصيل
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

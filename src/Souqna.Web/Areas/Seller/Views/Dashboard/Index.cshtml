@@ -1,0 +1,188 @@
+@model Souqna.Web.ViewModels.SellerDashboardViewModel
+@{
+    Layout = "_SellerLayout";
+    ViewData["Title"] = "لوحة تحكم التاجر";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">مرحباً بك، @Model.Store.StoreName</h3>
+        <p class="text-muted small mb-0">لوحة المتابعة الشاملة لمنتجاتك، طلباتك، ومعدل استهلاك باقتك النشطة.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Products" asp-action="Create" class="btn btn-accent rounded-pill px-3 btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> إضافة منتج
+        </a>
+        <a asp-controller="Reels" asp-action="Upload" class="btn btn-danger rounded-pill px-3 btn-sm">
+            <i class="bi bi-camera-reels me-1"></i> رفع ريلز
+        </a>
+    </div>
+</div>
+
+<!-- Metrics Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card card-souqna p-3 border-start border-4 border-success">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small text-muted fw-bold">إجمالي المبيعات</span>
+                <i class="bi bi-cash-coin fs-4 text-success"></i>
+            </div>
+            <div class="fs-4 fw-bold">@Model.TotalSales.ToString("N0") <small class="fs-6 text-muted">ج.م</small></div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card card-souqna p-3 border-start border-4 border-warning">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small text-muted fw-bold">طلبات بانتظار الشحن</span>
+                <i class="bi bi-hourglass-split fs-4 text-warning"></i>
+            </div>
+            <div class="fs-4 fw-bold">@Model.PendingOrdersCount</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card card-souqna p-3 border-start border-4 border-primary">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small text-muted fw-bold">المنتجات النشطة</span>
+                <i class="bi bi-box-seam fs-4 text-primary"></i>
+            </div>
+            <div class="fs-4 fw-bold">@Model.Usage.ActiveProductsCount <small class="fs-6 text-muted">/ @Model.Usage.MaxProducts</small></div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card card-souqna p-3 border-start border-4 border-danger">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small text-muted fw-bold">فيديوهات الريلز</span>
+                <i class="bi bi-camera-reels fs-4 text-danger"></i>
+            </div>
+            <div class="fs-4 fw-bold">@Model.Usage.PublishedVideosCount <small class="fs-6 text-muted">/ @Model.Usage.MaxVideos</small></div>
+        </div>
+    </div>
+</div>
+
+<!-- Subscription & Verification Status Banners -->
+<div class="row g-4 mb-4">
+    <!-- Active Subscription Entitlements -->
+    <div class="col-lg-6">
+        <div class="card card-souqna p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0"><i class="bi bi-gem text-accent me-1"></i> الباقة النشطة: @Model.Usage.PlanNameAr</h6>
+                <a asp-controller="Subscriptions" asp-action="Index" class="btn btn-outline-accent btn-sm rounded-pill px-3">ترقية الباقة</a>
+            </div>
+
+            <!-- Product Quota Bar -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>استهلاك المنتجات</span>
+                    <strong>@Model.Usage.ActiveProductsCount من @Model.Usage.MaxProducts منتج</strong>
+                </div>
+                @{
+                    int prodPercent = Model.Usage.MaxProducts > 0 ? (int)((double)Model.Usage.ActiveProductsCount / Model.Usage.MaxProducts * 100) : 0;
+                }
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar @(prodPercent >= 100 ? "bg-danger" : "bg-primary")" role="progressbar" style="width: @prodPercent%"></div>
+                </div>
+            </div>
+
+            <!-- Reels Quota Bar -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>استهلاك الريلز</span>
+                    <strong>@Model.Usage.PublishedVideosCount من @Model.Usage.MaxVideos فيديو</strong>
+                </div>
+                @{
+                    int reelPercent = Model.Usage.MaxVideos > 0 ? (int)((double)Model.Usage.PublishedVideosCount / Model.Usage.MaxVideos * 100) : 0;
+                }
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar @(reelPercent >= 100 ? "bg-danger" : "bg-danger")" role="progressbar" style="width: @reelPercent%"></div>
+                </div>
+            </div>
+
+            <div class="small text-muted mt-auto pt-2 border-top">
+                <span>أقصى مدة فيديو مسموحة: <strong>@Model.Usage.MaxVideoDurationSeconds ثانية</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Store Verification Status -->
+    <div class="col-lg-6">
+        <div class="card card-souqna p-4 h-100">
+            <h6 class="fw-bold mb-3"><i class="bi bi-shield-check text-success me-1"></i> حالة توثيق المتجر والهوية</h6>
+            @if (Model.Store.IsVerified)
+            {
+                <div class="p-3 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-3 mb-3">
+                    <div class="d-flex align-items-center gap-2 text-success fw-bold">
+                        <i class="bi bi-patch-check-fill fs-4"></i>
+                        <span>متجر موثق ومعتمد رسمياً بالبطاقة القومية</span>
+                    </div>
+                    <small class="text-muted d-block mt-1">تتمتع بشارة التوثيق المميزة وأولوية في نتائج البحث وثقة كاملة من المشترين.</small>
+                </div>
+            }
+            else
+            {
+                <div class="p-3 bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-3 mb-3">
+                    <div class="d-flex align-items-center gap-2 text-warning fw-bold">
+                        <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                        <span>المتجر غير موثق بالبطاقة القومية بعد</span>
+                    </div>
+                    <small class="text-muted d-block mt-1">وثق متجرك الآن للحصول على شارة التوثيق الأخضر وزيادة ثقة المشترين في منتجاتك.</small>
+                </div>
+            }
+            <div class="mt-auto">
+                <a asp-controller="Verification" asp-action="Index" class="btn btn-outline-success btn-sm rounded-pill px-4">
+                    متابعة طلب توثيق الهوية
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Store Orders -->
+<div class="card card-souqna p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">أحدث الطلبات الواردة</h5>
+        <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-primary btn-sm rounded-pill px-3">عرض جميع الطلبات</a>
+    </div>
+
+    @if (!Model.RecentOrders.Any())
+    {
+        <p class="text-muted small py-3 mb-0">لا توجد طلبات شراء واردة حتى الآن.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr class="small text-muted">
+                        <th>رقم الطلب</th>
+                        <th>تاريخ الطلب</th>
+                        <th>المنتجات</th>
+                        <th>الإجمالي</th>
+                        <th>الحالة</th>
+                        <th>إجراء</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ord in Model.RecentOrders)
+                    {
+                        <tr>
+                            <td class="fw-bold text-primary">@ord.ParentOrder?.OrderNumber</td>
+                            <td class="small text-muted">@ord.UpdatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td>@ord.Items.Count منتجات</td>
+                            <td class="fw-bold text-accent">@ord.TotalAmount.ToString("N0") ج.م</td>
+                            <td>
+                                <span class="badge @(ord.Status == Souqna.Core.Enums.OrderStatus.Delivered ? "bg-success" : ord.Status == Souqna.Core.Enums.OrderStatus.Canceled ? "bg-danger" : "bg-warning text-dark")">
+                                    @ord.Status
+                                </span>
+                            </td>
+                            <td>
+                                <a asp-controller="Orders" asp-action="Details" asp-route-id="@ord.Id" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                    إدارة الطلب
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

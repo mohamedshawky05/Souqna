@@ -1,0 +1,126 @@
+@model Souqna.Core.Entities.IdentityVerification
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = $"فحص طلب توثيق المتجر: {Model.Store?.StoreName}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">فحص مستندات هوية المتجر: @Model.Store?.StoreName</h3>
+        <span class="text-muted small">تاريخ تقديم الطلب: @Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</span>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill btn-sm">العودة للطابور</a>
+</div>
+
+<div class="row g-4">
+    <!-- Submitted Legal Information -->
+    <div class="col-lg-5">
+        <div class="card card-souqna p-4 mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i> بيانات مقدم الطلب</h5>
+            
+            <div class="mb-3">
+                <label class="small text-muted d-block">اسم المتجر</label>
+                <div class="fw-bold fs-6">@Model.Store?.StoreName</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="small text-muted d-block">الاسم القانوني الرباعي في البطاقة</label>
+                <div class="fw-bold fs-6">@Model.FullLegalName</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="small text-muted d-block">الرقم القومي المصري</label>
+                <code class="fs-5 fw-bold text-dark">@Model.NationalIdNumber</code>
+            </div>
+
+            <div class="mb-3">
+                <label class="small text-muted d-block">البريد الإلكتروني للتاجر</label>
+                <div>@Model.Store?.Seller?.Email</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="small text-muted d-block">رقم الهاتف المحمول</label>
+                <div>@Model.Store?.ContactPhone</div>
+            </div>
+
+            <div>
+                <label class="small text-muted d-block">الحالة الحالية</label>
+                <span class="badge @(Model.Status == Souqna.Core.Enums.VerificationStatus.Approved ? "bg-success" : Model.Status == Souqna.Core.Enums.VerificationStatus.Rejected ? "bg-danger" : "bg-warning text-dark") fs-6">
+                    @Model.Status
+                </span>
+            </div>
+        </div>
+
+        <!-- Decision Form Card -->
+        <div class="card card-souqna p-4 border-primary">
+            <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-check2-circle me-1"></i> اتخاذ القرار والاعتماد</h5>
+            <form asp-action="SubmitDecision" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">القرار الإداري *</label>
+                    <select name="decision" class="form-select" required>
+                        <option value="@Souqna.Core.Enums.VerificationStatus.Approved">اعتماد وتوثيق الهوية (Approved)</option>
+                        <option value="@Souqna.Core.Enums.VerificationStatus.Rejected">رفض الطلب (Rejected)</option>
+                        <option value="@Souqna.Core.Enums.VerificationStatus.ResubmissionRequired">طلب إعادة إرسال بمستندات أوضح (Resubmission)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">ملاحظات الفحص والسبب (تظهر للبائع في حسابه) *</label>
+                    <textarea name="notes" class="form-control" rows="3" placeholder="اكتب سبب القبول أو الرفض أو التعليمات المطلوبة من البائع..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-accent btn-lg w-100 rounded-pill shadow">
+                    حفظ القرار وإشعار التاجر فورا
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Private Documents Viewer (Streamed via secure authorized endpoint) -->
+    <div class="col-lg-7">
+        <div class="card card-souqna p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-file-earmark-lock text-success me-2"></i> المستندات المرفقة المحمية</h5>
+                <span class="badge bg-danger small"><i class="bi bi-shield-lock me-1"></i> مساحة تخزين خاصة</span>
+            </div>
+
+            <p class="small text-muted mb-4">
+                تُعرض هذه الملفات مباشرة عبر تدفق آمن ومصرح به للأدمن فقط (Streaming Authorization) بدون أي مسار عام على الويب.
+            </p>
+
+            <div class="row g-3">
+                @foreach (var doc in Model.Documents)
+                {
+                    <div class="col-12">
+                        <div class="card border rounded-3 p-3 bg-light">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold small text-primary">
+                                    <i class="bi bi-card-image me-1"></i> @doc.DocumentType
+                                </span>
+                                <span class="small text-muted">@((doc.FileSizeBytes / 1024.0).ToString("N1")) كيلوبايت</span>
+                            </div>
+
+                            <div class="text-center p-2 bg-white rounded border">
+                                <img src="@Url.Action("Document", "Verification", new { area = "Admin", key = doc.StorageKey })" 
+                                     class="img-fluid rounded" 
+                                     style="max-height: 380px; object-fit: contain;" 
+                                     alt="@doc.DocumentType">
+                            </div>
+
+                            <div class="text-end mt-2">
+                                <a href="@Url.Action("Document", "Verification", new { area = "Admin", key = doc.StorageKey })" 
+                                   target="_blank" 
+                                   class="btn btn-sm btn-outline-secondary rounded-pill">
+                                    <i class="bi bi-arrows-fullscreen me-1"></i> فتح بحجم كامل
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

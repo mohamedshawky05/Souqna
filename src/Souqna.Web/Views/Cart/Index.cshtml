@@ -1,0 +1,135 @@
+@model Souqna.Core.DTOs.CartDto
+@{
+    ViewData["Title"] = "سلة المشتريات - سوقنا";
+}
+
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-cart3 text-accent me-2"></i> سلة المشتريات</h3>
+
+    @if (!Model.Items.Any())
+    {
+        <div class="text-center py-5 bg-white border rounded-3 p-4">
+            <i class="bi bi-cart-x fs-1 text-muted"></i>
+            <h5 class="fw-bold mt-3">سلة المشتريات فارغة حالياً</h5>
+            <p class="text-muted small">تصفح آلاف المنتجات المميزة من مختلف المتاجر وأضف ما يعجبك إلى السلة.</p>
+            <a asp-controller="Marketplace" asp-action="Index" class="btn btn-accent rounded-pill px-4">
+                تصفح المنتجات الآن
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Items List -->
+            <div class="col-lg-8">
+                <div class="card card-souqna p-3 mb-3">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr class="small text-muted">
+                                    <th style="min-width: 250px;">المنتج والمتجر</th>
+                                    <th>السعر</th>
+                                    <th>الكمية</th>
+                                    <th>الإجمالي</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <img src="@(item.ProductImage ?? "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100")" class="rounded border" style="width: 60px; height: 60px; object-fit: cover;" alt="@item.ProductName">
+                                                <div>
+                                                    <h6 class="fw-bold mb-0 text-truncate" style="max-width: 220px;">@item.ProductName</h6>
+                                                    <small class="text-muted"><i class="bi bi-shop me-1"></i>@item.StoreName</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold">@item.UnitPrice.ToString("N0")</span> <small class="text-muted">ج.م</small>
+                                        </td>
+                                        <td>
+                                            <div class="input-group input-group-sm" style="width: 100px;">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="updateQty(@item.ProductId, @(item.Quantity - 1))">-</button>
+                                                <input type="text" class="form-control text-center" value="@item.Quantity" readonly>
+                                                <button class="btn btn-outline-secondary" type="button" onclick="updateQty(@item.ProductId, @(item.Quantity + 1))">+</button>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-accent">@item.TotalPrice.ToString("N0")</span> <small class="text-muted">ج.م</small>
+                                        </td>
+                                        <td>
+                                            <form asp-action="Remove" method="post" class="d-inline">
+                                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                                <button type="submit" class="btn btn-link text-danger p-0" title="حذف من السلة">
+                                                    <i class="bi bi-trash fs-5"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="col-lg-4">
+                <div class="card card-souqna p-4 sticky-top" style="top: 80px;">
+                    <h5 class="fw-bold mb-3">ملخص الطلب</h5>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">إجمالي المنتجات (@Model.TotalItems قطعة)</span>
+                        <span class="fw-bold">@Model.Subtotal.ToString("N0") ج.م</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">تكلفة الشحن والتوصيل</span>
+                        <span class="fw-bold text-success">@Model.DeliveryFee.ToString("N0") ج.م</span>
+                    </div>
+                    <small class="text-muted d-block mb-3" style="font-size: 0.75rem;">
+                        <i class="bi bi-info-circle me-1"></i> الشحن محسوب وفقاً لتعدد المتاجر في سلة الشراء (35 ج.م لكل متجر).
+                    </small>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-baseline mb-4">
+                        <span class="fw-bold fs-5">الإجمالي النهائي</span>
+                        <span class="fs-4 fw-bold text-accent">@Model.Total.ToString("N0") <small class="fs-6">ج.م</small></span>
+                    </div>
+
+                    <a asp-controller="Checkout" asp-action="Index" class="btn btn-accent btn-lg w-100 rounded-pill mb-2">
+                        <i class="bi bi-credit-card me-2"></i> المتابعة لإتمام الطلب
+                    </a>
+                    <a asp-controller="Marketplace" asp-action="Index" class="btn btn-outline-secondary btn-sm w-100 rounded-pill">
+                        متابعة التسوق
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    async function updateQty(productId, newQty) {
+        try {
+            const res = await fetch('/Cart/UpdateQuantity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getCsrfToken()
+                },
+                body: JSON.stringify({ productId, quantity: newQty })
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.location.reload();
+            } else {
+                showToast(data.message, 'danger');
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+</script>
+}

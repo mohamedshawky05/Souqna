@@ -1,0 +1,79 @@
+@model List<Souqna.Core.Entities.Video>
+@{
+    Layout = "_SellerLayout";
+    ViewData["Title"] = "فيديوهات ريلز المتجر";
+    var usage = ViewBag.Usage as Souqna.Core.DTOs.SubscriptionUsageDto;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-camera-reels text-danger me-2"></i> فيديوهات الريلز الخاصة بمتجرك</h3>
+        <p class="text-muted small mb-0">
+            أنت تستخدم <strong>@(usage?.PublishedVideosCount ?? 0)</strong> من أصل <strong>@(usage?.MaxVideos ?? 0)</strong> فيديو في باقتك الحالية (الحد الأقصى للمدة: @(usage?.MaxVideoDurationSeconds ?? 60) ثانية).
+        </p>
+    </div>
+    <div>
+        <a asp-action="Upload" class="btn btn-danger rounded-pill px-4">
+            <i class="bi bi-cloud-arrow-up me-1"></i> رفع ريلز جديد
+        </a>
+    </div>
+</div>
+
+<div class="card card-souqna p-4">
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-camera-reels fs-1 text-danger"></i>
+            <h5 class="fw-bold mt-3">لم تقم برفع أي فيديوهات ريلز بعد</h5>
+            <p class="text-muted small">تساعد فيديوهات الريلز على مضاعفة مبيعات منتجاتك حتى 5 أضعاف عبر الاستعراض الحي.</p>
+            <a asp-action="Upload" class="btn btn-danger rounded-pill px-4 mt-2">رفع أول فيديو ريلز</a>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+            @foreach (var reel in Model)
+            {
+                <div class="col">
+                    <div class="card bg-black text-white rounded-3 overflow-hidden position-relative h-100 shadow">
+                        <img src="@(reel.ThumbnailUrl ?? "/images/reels-default-thumb.jpg")" class="card-img-top" style="height: 250px; object-fit: cover;" alt="@reel.Title">
+                        
+                        <div class="position-absolute top-0 end-0 p-2">
+                            <span class="badge bg-dark bg-opacity-75"><i class="bi bi-clock me-1"></i>@reel.DurationSeconds ثانية</span>
+                        </div>
+
+                        <div class="card-body p-3 bg-gradient">
+                            <h6 class="fw-bold text-white text-truncate mb-1">@reel.Title</h6>
+                            @if (reel.Product != null)
+                            {
+                                <small class="text-info d-block text-truncate mb-2"><i class="bi bi-link-45deg"></i> @reel.Product.Name</small>
+                            }
+                            <div class="d-flex justify-content-between align-items-center small text-muted pt-2 border-top border-secondary">
+                                <span><i class="bi bi-eye me-1"></i>@reel.ViewsCount</span>
+                                <span class="text-danger"><i class="bi bi-heart-fill me-1"></i>@reel.LikesCount</span>
+                                @if (reel.Status != Souqna.Core.Enums.VideoStatus.Archived)
+                                {
+                                    <div class="d-flex align-items-center gap-2">
+                                        <a asp-action="Edit" asp-route-id="@reel.Id" class="btn btn-link text-info p-0" title="تعديل">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form asp-action="Delete" asp-route-id="@reel.Id" method="post" onsubmit="return confirm('هل تريد أرشفة هذا الفيديو وإزالته من العرض؟');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-link text-danger p-0" title="أرشفة">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">مؤرشف</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

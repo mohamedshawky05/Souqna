@@ -1,0 +1,52 @@
+@model Souqna.Web.ViewModels.VideoEditViewModel
+@{
+    Layout = "_SellerLayout";
+    ViewData["Title"] = "تعديل فيديو الريلز";
+    int maxSeconds = ViewBag.MaxDurationSeconds ?? 60;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">تعديل فيديو الريلز</h3>
+    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill btn-sm">العودة للفيديوهات</a>
+</div>
+
+<div class="card card-souqna p-4">
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input asp-for="Id" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger small"></div>
+
+        <div class="mb-3">
+            <label asp-for="Title" class="form-label fw-bold">عنوان الفيديو</label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="ProductId" class="form-label fw-bold">المنتج المرتبط</label>
+            <select asp-for="ProductId" asp-items="ViewBag.Products" class="form-select">
+                <option value="">بدون ربط بمنتج</option>
+            </select>
+            <span asp-validation-for="ProductId" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label fw-bold">الوصف</label>
+            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Description" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">الفيديو الحالي</label>
+            <video class="d-block rounded bg-dark" controls preload="metadata" style="max-width:100%;max-height:320px">
+                <source src="@Model.VideoUrl" />
+            </video>
+        </div>
+        <div class="mb-3">
+            <label asp-for="VideoFile" class="form-label fw-bold">استبدال الفيديو (اختياري، MP4 أو WebM، حتى 100 ميجابايت)</label>
+            <input asp-for="VideoFile" class="form-control" type="file" accept="video/mp4,video/webm" />
+            <span asp-validation-for="VideoFile" class="text-danger small"></span>
+            <small class="text-muted">الحد الأقصى لمدة الفيديو حسب باقتك: @maxSeconds ثانية.</small>
+        </div>
+        <button type="submit" class="btn btn-accent rounded-pill px-4">
+            حفظ التعديلات
+        </button>
+    </form>
+</div>

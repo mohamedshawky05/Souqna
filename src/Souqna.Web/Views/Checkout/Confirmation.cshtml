@@ -1,0 +1,67 @@
+@model Souqna.Core.Entities.Order
+@{
+    ViewData["Title"] = $"تم تأكيد الطلب {Model.OrderNumber} - سوقنا";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-souqna p-4 p-md-5 text-center shadow-lg mb-4">
+                <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                    <i class="bi bi-check-lg fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-2 text-success">شكراً لك! تم تأكيد طلبك بنجاح</h3>
+                <p class="text-muted">تم إرسال إشعار فوري للتجار المعتمدين لبدء تجهيز طلباتك وشحنها في أسرع وقت.</p>
+
+                <div class="alert alert-light border my-4 py-3 d-flex justify-content-between align-items-center">
+                    <span class="text-muted">رقم الطلب المرجعي:</span>
+                    <strong class="fs-5 text-primary">@Model.OrderNumber</strong>
+                </div>
+
+                <!-- Multi-Vendor Split Orders Summary -->
+                <div class="text-start mt-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-box-seam me-2 text-primary"></i> تفاصيل الشحنات والمتاجر</h5>
+                    @foreach (var storeOrder in Model.StoreOrders)
+                    {
+                        <div class="card border rounded-3 p-3 mb-3 bg-light">
+                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                <div class="fw-bold">
+                                    <i class="bi bi-shop me-1 text-accent"></i> @(storeOrder.Store?.StoreName ?? "متجر")
+                                </div>
+                                <span class="badge bg-primary">@storeOrder.Status</span>
+                            </div>
+                            <ul class="list-unstyled mb-2 small">
+                                @foreach (var item in storeOrder.Items)
+                                {
+                                    <li class="d-flex justify-content-between py-1">
+                                        <span>@item.ProductName × @item.Quantity</span>
+                                        <strong>@item.TotalPrice.ToString("N0") ج.م</strong>
+                                    </li>
+                                }
+                            </ul>
+                            <div class="d-flex justify-content-between small text-muted pt-2 border-top">
+                                <span>شحن هذا المتجر: @storeOrder.DeliveryFee.ToString("N0") ج.م</span>
+                                <span class="fw-bold text-dark">الإجمالي: @storeOrder.TotalAmount.ToString("N0") ج.م</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Grand Total -->
+                <div class="d-flex justify-content-between align-items-baseline p-3 bg-white border rounded-3 mt-3">
+                    <span class="fs-5 fw-bold">إجمالي الفاتورة المدفوع / المستحق:</span>
+                    <span class="fs-3 fw-bold text-accent">@Model.TotalAmount.ToString("N0") <small class="fs-6">ج.م</small></span>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <a asp-controller="Order" asp-action="MyOrders" class="btn btn-accent rounded-pill px-4">
+                        <i class="bi bi-receipt me-1"></i> عرض قائمة طلباتي
+                    </a>
+                    <a asp-controller="Marketplace" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                        متابعة التسوق في سوقنا
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

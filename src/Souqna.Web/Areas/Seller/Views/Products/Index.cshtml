@@ -1,0 +1,124 @@
+@model List<Souqna.Core.Entities.Product>
+@{
+    Layout = "_SellerLayout";
+    ViewData["Title"] = "إدارة المنتجات";
+    var usage = ViewBag.Usage as Souqna.Core.DTOs.SubscriptionUsageDto;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <h3 class="fw-bold mb-1">المنتجات في متجرك</h3>
+        <p class="text-muted small mb-0">
+            أنت تستخدم <strong>@(usage?.ActiveProductsCount ?? 0)</strong> من أصل <strong>@(usage?.MaxProducts ?? 0)</strong> منتج نشط في باقتك الحالية.
+        </p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-accent rounded-pill px-4">
+            <i class="bi bi-plus-lg me-1"></i> إضافة منتج جديد
+        </a>
+    </div>
+</div>
+
+<div class="card card-souqna p-4">
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-box-seam fs-1 text-muted"></i>
+            <h5 class="fw-bold mt-2">لم تقم بإضافة أي منتجات بعد</h5>
+            <p class="text-muted small">ابدأ الآن بإضافة أول منتج لمتجرك ليظهر فوراً في السوق للمشترين.</p>
+            <a asp-action="Create" class="btn btn-accent rounded-pill px-4 mt-2">إضافة منتج</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr class="small text-muted">
+                        <th>الصورة والاسم</th>
+                        <th>القسم</th>
+                        <th>السعر</th>
+                        <th>المخزون</th>
+                        <th>الحالة</th>
+                        <th>المشاهدات</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var prod in Model)
+                    {
+                        var img = prod.Images.FirstOrDefault()?.ImageUrl ?? "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100";
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="@img" class="rounded border" style="width: 50px; height: 50px; object-fit: cover;" alt="@prod.Name">
+                                    <div>
+                                        <div class="fw-bold">@prod.Name</div>
+                                        <small class="text-muted">@(prod.SKU ?? "بدون SKU")</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-light text-dark border">@(prod.Category?.NameAr ?? "عام")</span></td>
+                            <td>
+                                @if (prod.SalePrice.HasValue)
+                                {
+                                    <span class="fw-bold text-accent">@prod.SalePrice.Value.ToString("N0")</span>
+                                    <small class="text-decoration-line-through text-muted ms-1">@prod.Price.ToString("N0")</small>
+                                }
+                                else
+                                {
+                                    <span class="fw-bold text-accent">@prod.Price.ToString("N0")</span>
+                                }
+                                <small class="text-muted">ج.م</small>
+                            </td>
+                            <td>
+                                @if (prod.StockQuantity > 5)
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success">@prod.StockQuantity قطعة</span>
+                                }
+                                else if (prod.StockQuantity > 0)
+                                {
+                                    <span class="badge bg-warning bg-opacity-10 text-warning">@prod.StockQuantity فقط</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger bg-opacity-10 text-danger">منتهي</span>
+                                }
+                            </td>
+                            <td>
+                                @if (prod.IsPublished)
+                                {
+                                    <span class="badge bg-success">منشور بالسوق</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">مخفي</span>
+                                }
+                            </td>
+                            <td class="text-muted small">@prod.ViewCount</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Edit" asp-route-id="@prod.Id" class="btn btn-outline-primary" title="تعديل">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form asp-action="TogglePublish" asp-route-id="@prod.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-secondary" title="@(prod.IsPublished ? "إخفاء" : "نشر")">
+                                            <i class="bi @(prod.IsPublished ? "bi-eye-slash" : "bi-eye")"></i>
+                                        </button>
+                                    </form>
+                                    <form asp-action="Delete" asp-route-id="@prod.Id" method="post" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا المنتج؟');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger" title="حذف">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

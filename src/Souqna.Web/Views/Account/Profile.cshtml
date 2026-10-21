@@ -1,0 +1,171 @@
+@model Souqna.Core.Entities.ApplicationUser
+@{
+    ViewData["Title"] = "الملف الشخصي وإعدادات الحساب - سوقنا";
+    var addresses = ViewBag.Addresses as List<Souqna.Core.Entities.DeliveryAddress> ?? new();
+}
+
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-person-gear text-accent me-2"></i> إعدادات الحساب والملف الشخصي</h3>
+
+    <div class="row g-4">
+        <!-- Personal Info Form -->
+        <div class="col-lg-6">
+            <div class="card card-souqna p-4 mb-4">
+                <h5 class="fw-bold mb-3">البيانات الأساسية</h5>
+                <form asp-action="UpdateProfile" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">الاسم الكامل</label>
+                        <input type="text" name="fullName" value="@Model.FullName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">البريد الإلكتروني (غير قابل للتعديل)</label>
+                        <input type="email" value="@Model.Email" class="form-control bg-light" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">رقم الهاتف المحمول</label>
+                        <div class="input-group">
+                            <input type="text" id="userPhoneInput" name="phoneNumber" value="@Model.PhoneNumber" class="form-control" placeholder="01xxxxxxxxx" required />
+                            @if (Model.PhoneNumberConfirmed)
+                            {
+                                <span class="input-group-text bg-success text-white small" title="رقم الهاتف موثق"><i class="bi bi-patch-check-fill me-1"></i> موثق</span>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-warning btn-sm" onclick="startPhoneOtpVerification()">
+                                    <i class="bi bi-shield-lock me-1"></i> توثيق عبر OTP
+                                </button>
+                            }
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-accent rounded-pill px-4">حفظ التغييرات</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Addresses List & Quick Actions -->
+        <div class="col-lg-6">
+            <div class="card card-souqna p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-geo-alt text-danger me-1"></i> عناوين التوصيل</h5>
+                </div>
+                @if (!addresses.Any())
+                {
+                    <p class="text-muted small">لم يتم تسجيل عناوين توصيل محفوظة بعد. يتم حفظ العنوان تلقائياً عند أول عملية شراء.</p>
+                }
+                else
+                {
+                    <div class="d-flex flex-column gap-2">
+                        @foreach (var addr in addresses)
+                        {
+                            <div class="p-3 border rounded-3 bg-light">
+                                <div class="fw-bold small mb-1">@addr.FullName - @addr.Phone</div>
+                                <div class="small text-muted">@addr.City, @addr.Area, @addr.StreetAddress</div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Role status box -->
+            <div class="card card-souqna p-4 border-info border-opacity-25 bg-info bg-opacity-10">
+                <h6 class="fw-bold text-info"><i class="bi bi-info-circle me-1"></i> نوع الحساب</h6>
+                <p class="small text-muted mb-2">أنت مسجل حالياً كـ: <strong>@Model.UserType</strong></p>
+                @if (Model.UserType == Souqna.Core.Enums.UserRole.Seller)
+                {
+                    <a asp-area="Seller" asp-controller="Dashboard" asp-action="Index" class="btn btn-success btn-sm rounded-pill px-3">
+                        <i class="bi bi-shop me-1"></i> الانتقال إلى لوحة تحكم المتجر
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Phone OTP Verification Modal -->
+<div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="otpModalLabel"><i class="bi bi-shield-check text-success me-2"></i> تأكيد رقم الهاتف عبر OTP</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small text-muted mb-3" id="otp-phone-msg">تم إرسال رمز التحقق المكون من 6 أرقام عبر SMS إلى رقم هاتفك.</p>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">أدخل رمز التحقق (OTP)</label>
+                    <input type="text" id="otp-input" class="form-control text-center fs-4 letter-spacing-2" maxlength="6" placeholder="------" autofocus>
+                </div>
+                <div class="text-center small text-muted">
+                    لم يصلك الرمز؟ <a href="javascript:void(0)" onclick="resendOtp()" class="text-decoration-none">إعادة إرسال بعد دقيقة</a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-accent rounded-pill px-4" onclick="confirmOtp()">تأكيد الرمز</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let activePhone = '';
+
+    async function startPhoneOtpVerification() {
+        const phone = document.getElementById('userPhoneInput').value.trim();
+        if (!phone) {
+            showToast('يرجى إدخال رقم الهاتف أولاً', 'danger');
+            return;
+        }
+        activePhone = phone;
+
+        try {
+            const res = await fetch(`/Account/RequestPhoneOtp?phoneNumber=${encodeURIComponent(phone)}`, {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': getCsrfToken() }
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                const modal = new bootstrap.Modal(document.getElementById('otpModal'));
+                modal.show();
+            } else {
+                showToast(data.message, 'danger');
+            }
+        } catch (e) {
+            console.error(e);
+            showToast('حدث خطأ أثناء طلب رمز التحقق', 'danger');
+        }
+    }
+
+    async function confirmOtp() {
+        const code = document.getElementById('otp-input').value.trim();
+        if (code.length !== 6) {
+            showToast('يرجى إدخال رمز التحقق المكون من 6 أرقام', 'danger');
+            return;
+        }
+
+        try {
+            const res = await fetch(`/Account/VerifyPhoneOtp?phoneNumber=${encodeURIComponent(activePhone)}&otpCode=${encodeURIComponent(code)}`, {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': getCsrfToken() }
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                setTimeout(() => window.location.reload(), 1200);
+            } else {
+                showToast(data.message, 'danger');
+            }
+        } catch (e) {
+            console.error(e);
+            showToast('حدث خطأ أثناء تأكيد الرمز', 'danger');
+        }
+    }
+
+    function resendOtp() {
+        startPhoneOtpVerification();
+    }
+</script>
+}

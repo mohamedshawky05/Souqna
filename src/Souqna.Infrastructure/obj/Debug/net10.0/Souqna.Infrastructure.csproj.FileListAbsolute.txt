@@ -1,0 +1,36 @@
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\bin\Debug\net10.0\Souqna.Infrastructure.deps.json
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\bin\Debug\net10.0\Souqna.Infrastructure.runtimeconfig.json
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\bin\Debug\net10.0\Souqna.Infrastructure.dll
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\bin\Debug\net10.0\Souqna.Infrastructure.pdb
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\bin\Debug\net10.0\Souqna.Core.dll
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\bin\Debug\net10.0\Souqna.Core.pdb
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.AssemblyInfo.cs
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.sourcelink.json
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.I.C0B5BD70.Up2Date
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.dll
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\obj\Debug\net10.0\refint\Souqna.Infrastructure.dll
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.pdb
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.genruntimeconfig.cache
+C:\Users\User\Desktop\job2\src\Souqna.Infrastructure\obj\Debug\net10.0\ref\Souqna.Infrastructure.dll
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\bin\Debug\net10.0\Souqna.Infrastructure.deps.json
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\bin\Debug\net10.0\Souqna.Infrastructure.runtimeconfig.json
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\bin\Debug\net10.0\Souqna.Infrastructure.dll
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\bin\Debug\net10.0\Souqna.Infrastructure.pdb
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\bin\Debug\net10.0\Souqna.Core.dll
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\bin\Debug\net10.0\Souqna.Core.pdb
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.AssemblyInfo.cs
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.sourcelink.json
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.I.C0B5BD70.Up2Date
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.dll
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\obj\Debug\net10.0\refint\Souqna.Infrastructure.dll
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.pdb
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\obj\Debug\net10.0\Souqna.Infrastructure.genruntimeconfig.cache
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Infrastructure\obj\Debug\net10.0\ref\Souqna.Infrastructure.dll

@@ -1,0 +1,86 @@
+@model List<Souqna.Core.Entities.Product>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "مراقبة وإدارة المنتجات";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-box-seam text-primary me-2"></i> مراقبة المنتجات المعروضة بالسوق</h3>
+        <p class="text-muted small mb-0">مراجعة المنتجات عبر جميع المتاجر، تمييز المنتجات في الصفحة الرئيسية أو إخفاء المخالفات.</p>
+    </div>
+</div>
+
+<div class="card card-souqna p-4">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover mb-0">
+            <thead class="table-light">
+                <tr class="small text-muted">
+                    <th>المنتج</th>
+                    <th>المتجر</th>
+                    <th>القسم</th>
+                    <th>السعر</th>
+                    <th>المخزون</th>
+                    <th>المشاهدات</th>
+                    <th>الحالة</th>
+                    <th>إجراءات الإشراف</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var prod in Model)
+                {
+                    var img = prod.Images.FirstOrDefault()?.ImageUrl ?? "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=80";
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="@img" class="rounded border" style="width: 44px; height: 44px; object-fit: cover;" alt="@prod.Name">
+                                <div class="fw-bold small text-truncate" style="max-width: 200px;">@prod.Name</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="small fw-bold">@prod.Store?.StoreName</span>
+                            @if (prod.Store?.IsVerified == true)
+                            {
+                                <i class="bi bi-patch-check-fill text-success" title="متجر موثق"></i>
+                            }
+                        </td>
+                        <td><span class="badge bg-light text-dark border">@prod.Category?.NameAr</span></td>
+                        <td class="fw-bold text-accent">@prod.Price.ToString("N0") ج.م</td>
+                        <td>@prod.StockQuantity</td>
+                        <td>@prod.ViewCount</td>
+                        <td>
+                            @if (prod.IsFeatured)
+                            {
+                                <span class="badge bg-warning text-dark"><i class="bi bi-star-fill me-1"></i>مميز</span>
+                            }
+                            @if (prod.IsPublished)
+                            {
+                                <span class="badge bg-success">منشور</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">مخفي</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <form asp-action="ToggleFeatured" asp-route-id="@prod.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm @(prod.IsFeatured ? "btn-outline-warning" : "btn-outline-secondary") rounded-pill px-2" title="تبديل التمييز">
+                                        <i class="bi @(prod.IsFeatured ? "bi-star-fill text-warning" : "bi-star")"></i>
+                                    </button>
+                                </form>
+                                <form asp-action="TogglePublish" asp-route-id="@prod.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm @(prod.IsPublished ? "btn-outline-danger" : "btn-outline-success") rounded-pill px-3">
+                                        @(prod.IsPublished ? "إخفاء" : "نشر")
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

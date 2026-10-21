@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Souqna.Core/Souqna.Core.csproj" />
+    <Project Path="src/Souqna.Infrastructure/Souqna.Infrastructure.csproj" />
+    <Project Path="src/Souqna.Web/Souqna.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Souqna.UnitTests/Souqna.UnitTests.csproj" />
+  </Folder>
+</Solution>

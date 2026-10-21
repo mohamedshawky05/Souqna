@@ -1,0 +1,82 @@
+@model List<Souqna.Core.Entities.Subscription>
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "طلبات الاشتراك المعلقة";
+}
+
+<div class="container py-4">
+    <h2 class="mb-4">طلبات الاشتراك المعلقة</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            لا توجد طلبات اشتراك معلقة حاليًا.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>رقم الطلب</th>
+                        <th>المتجر</th>
+                        <th>الباقة</th>
+                        <th>الفترة</th>
+                        <th>المبلغ</th>
+                        <th>تاريخ الطلب</th>
+                        <th>الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.Store?.StoreName</td>
+                            <td>@item.SubscriptionPlan?.NameAr</td>
+                            <td>
+                                @(item.BillingInterval ==
+                                    Souqna.Core.Enums.BillingInterval.Yearly
+                                    ? "سنوي"
+                                    : "شهري")
+                            </td>
+                            <td>@item.PricePaid.ToString("N2") جنيه</td>
+                            <td>@item.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td>
+                                <form asp-area="Admin"
+                                      asp-controller="SubscriptionPayments"
+                                      asp-action="ConfirmPayment"
+                                      method="post"
+                                      onsubmit="return confirm('هل تحققت من استلام المبلغ فعلًا وتريد تفعيل الاشتراك؟');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.Id" />
+
+                                    <button type="submit"
+                                            class="btn btn-success btn-sm">
+                                        تأكيد استلام المبلغ والتفعيل
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

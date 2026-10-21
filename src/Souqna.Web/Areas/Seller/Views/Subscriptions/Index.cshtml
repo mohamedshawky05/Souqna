@@ -1,0 +1,103 @@
+@model List<Souqna.Core.Entities.SubscriptionPlan>
+@{
+    Layout = "_SellerLayout";
+    ViewData["Title"] = "الباقة والاشتراك";
+    var currentSub = ViewBag.CurrentSub as Souqna.Core.Entities.Subscription;
+    var usage = ViewBag.Usage as Souqna.Core.DTOs.SubscriptionUsageDto;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-gem text-accent me-2"></i> باقة متجرك وحدود الاستخدام</h3>
+        <p class="text-muted small mb-0">يمكنك ترقية أو تجديد باقتك في أي وقت لزيادة عدد المنتجات وفيديوهات الريلز المسموحة.</p>
+    </div>
+</div>
+
+<!-- Current Plan Overview Card -->
+<div class="card card-souqna p-4 mb-5 border-primary border-2 bg-light">
+    <div class="row align-items-center g-3">
+        <div class="col-md-7">
+            <span class="badge bg-primary px-3 py-1 rounded-pill mb-2">الباقة النشطة حالياً</span>
+            <h4 class="fw-bold mb-1 text-primary">@usage?.PlanNameAr</h4>
+            <div class="small text-muted mb-3">
+                <i class="bi bi-calendar-check me-1"></i> صالح حتى: <strong>@(currentSub?.EndDate.ToString("yyyy/MM/dd") ?? "غير محدد")</strong>
+                <span class="badge @(currentSub?.Status == Souqna.Core.Enums.SubscriptionStatus.Active ? "bg-success" : "bg-warning") ms-2">
+                    @currentSub?.Status
+                </span>
+            </div>
+
+            <div class="row g-2">
+                <div class="col-6">
+                    <div class="p-2 border rounded bg-white small">
+                        <span class="text-muted d-block">المنتجات النشطة:</span>
+                        <strong>@usage?.ActiveProductsCount من @usage?.MaxProducts</strong>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-2 border rounded bg-white small">
+                        <span class="text-muted d-block">فيديوهات الريلز:</span>
+                        <strong>@usage?.PublishedVideosCount من @usage?.MaxVideos</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 text-md-end">
+            @if (currentSub?.Status == Souqna.Core.Enums.SubscriptionStatus.Active && currentSub.PricePaid > 0)
+            {
+                <form asp-action="Cancel" method="post" onsubmit="return confirm('هل تريد إلغاء التجديد التلقائي للاشتراك؟ ستظل متمتعاً بمزايا الباقة حتى نهاية الفترة.');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-danger rounded-pill px-4 btn-sm">إلغاء التجديد التلقائي</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Plans Grid for Upgrade -->
+<h5 class="fw-bold mb-3">ترقية أو تغيير الباقة</h5>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+    @foreach (var plan in Model)
+    {
+        bool isCurrent = currentSub?.SubscriptionPlanId == plan.Id;
+        <div class="col">
+            <div class="card card-souqna h-100 p-4 text-center @(isCurrent ? "border-success border-2 shadow" : "")">
+                @if (isCurrent)
+                {
+                    <span class="badge bg-success mb-2">باقتك الحالية</span>
+                }
+                <h5 class="fw-bold mb-1">@plan.NameAr</h5>
+                <p class="text-muted small mb-2" style="min-height: 40px;">@plan.DescriptionAr</p>
+
+                <div class="my-3 py-2 bg-light rounded-3 border">
+                    <span class="fs-3 fw-bold text-accent">@plan.PriceMonthly.ToString("N0")</span>
+                    <small class="text-muted">ج.م / شهرياً</small>
+                </div>
+
+                <ul class="list-unstyled text-start small mb-4 d-flex flex-column gap-2 flex-grow-1">
+                    <li><i class="bi bi-check-circle-fill text-success me-1"></i> حتى <strong>@plan.MaxActiveProducts</strong> منتج</li>
+                    <li><i class="bi bi-check-circle-fill text-success me-1"></i> حتى <strong>@plan.MaxPublishedVideos</strong> ريلز</li>
+                    <li><i class="bi bi-check-circle-fill text-success me-1"></i> مدة الفيديو حتى <strong>@plan.MaxVideoDurationSeconds ثانية</strong></li>
+                    <li><i class="bi @(plan.AllowsCoupons ? "bi-check-circle-fill text-success" : "bi-x-circle text-muted") me-1"></i> كوبونات المتجر</li>
+                    <li><i class="bi @(plan.AllowsCsvExportImport ? "bi-check-circle-fill text-success" : "bi-x-circle text-muted") me-1"></i> استيراد CSV</li>
+                </ul>
+
+                @if (isCurrent)
+                {
+                    <button class="btn btn-outline-success w-100 rounded-pill py-2" disabled>مشترك بها حالياً</button>
+                }
+                else
+                {
+                    <form asp-action="Subscribe" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="planId" value="@plan.Id" />
+                        <input type="hidden" name="interval" value="@Souqna.Core.Enums.BillingInterval.Monthly" />
+                        <button type="submit" class="btn btn-accent w-100 rounded-pill py-2 fw-bold">
+                            ترقية لهذه الباقة
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,69 @@
+@model List<Souqna.Core.Entities.Order>
+@{
+    ViewData["Title"] = "طلباتي - سوقنا";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0"><i class="bi bi-bag-check text-accent me-2"></i> سجل طلباتي</h3>
+        <a asp-controller="Marketplace" asp-action="Index" class="btn btn-outline-accent btn-sm rounded-pill">
+            تصفح المزيد من المنتجات
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 bg-white border rounded-3">
+            <i class="bi bi-inbox fs-1 text-muted"></i>
+            <h5 class="fw-bold mt-3">لم تقم بأي طلبات شراء بعد</h5>
+            <p class="text-muted small">ابدأ التسوق الآن واستمتع بتجربة الشراء الآمنة من تجار سوقنا.</p>
+            <a asp-controller="Marketplace" asp-action="Index" class="btn btn-accent rounded-pill px-4 mt-2">ابدأ التسوق</a>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-column gap-3">
+            @foreach (var order in Model)
+            {
+                <div class="card card-souqna p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center pb-3 border-bottom gap-2">
+                        <div>
+                            <span class="text-muted small">رقم الطلب:</span>
+                            <span class="fw-bold text-primary me-2">@order.OrderNumber</span>
+                            <span class="badge @(order.Status == Souqna.Core.Enums.OrderStatus.Delivered ? "bg-success" : order.Status == Souqna.Core.Enums.OrderStatus.Canceled ? "bg-danger" : "bg-warning text-dark")">
+                                @order.Status
+                            </span>
+                        </div>
+                        <div class="small text-muted">
+                            <i class="bi bi-calendar3 me-1"></i> @order.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                        </div>
+                    </div>
+
+                    <!-- Suborders Preview -->
+                    <div class="py-3">
+                        <div class="small text-muted mb-2">المتاجر في هذا الطلب:</div>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var so in order.StoreOrders)
+                            {
+                                <span class="badge bg-light text-dark border p-2">
+                                    <i class="bi bi-shop me-1 text-accent"></i> @(so.Store?.StoreName ?? "متجر") 
+                                    <span class="text-muted ms-1">(@so.Items.Count منتجات)</span>
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <div>
+                            <span class="text-muted small">الإجمالي:</span>
+                            <strong class="fs-5 text-accent me-1">@order.TotalAmount.ToString("N0")</strong> <small>ج.م</small>
+                        </div>
+                        <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-outline-primary btn-sm rounded-pill px-4">
+                            عرض التفاصيل الكاملة <i class="bi bi-arrow-left"></i>
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

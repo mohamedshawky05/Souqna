@@ -1,0 +1,220 @@
+@model Souqna.Web.ViewModels.MarketplaceViewModel
+@{
+    ViewData["Title"] = "سوق المنتجات - تصفح المنتجات في مصر";
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb & Header -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">الرئيسية</a></li>
+            <li class="breadcrumb-item active" aria-current="page">سوق المنتجات</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Filter Sidebar -->
+        <div class="col-lg-3">
+            <div class="card card-souqna p-3 sticky-top" style="top: 80px; z-index: 5;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-funnel me-1 text-accent"></i> تصفية النتائج</h6>
+                    <a asp-action="Index" class="small text-danger text-decoration-none">إعادة ضبط</a>
+                </div>
+
+                <form method="get" asp-action="Index">
+                    <!-- Keyword Search -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">كلمة البحث</label>
+                        <input type="text" name="q" value="@Model.Query" class="form-control form-control-sm" placeholder="اسم المنتج أو المتجر...">
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">القسم</label>
+                        <select name="categoryId" class="form-select form-select-sm">
+                            <option value="">جميع الأقسام</option>
+                            @foreach (var cat in Model.Categories)
+                            {
+                                <option value="@cat.Id" selected="@(Model.CategoryId == cat.Id)">@cat.NameAr</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">نطاق السعر (ج.م)</label>
+                        <div class="d-flex gap-2">
+                            <input type="number" name="minPrice" value="@Model.MinPrice" class="form-control form-control-sm" placeholder="من">
+                            <input type="number" name="maxPrice" value="@Model.MaxPrice" class="form-control form-control-sm" placeholder="إلى">
+                        </div>
+                    </div>
+
+                    <!-- City Filter -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">المحافظة / المدينة</label>
+                        <select name="city" class="form-select form-select-sm">
+                            <option value="">جميع المحافظات</option>
+                            <option value="القاهرة" selected="@(Model.City == "القاهرة")">القاهرة</option>
+                            <option value="الجيزة" selected="@(Model.City == "الجيزة")">الجيزة</option>
+                            <option value="الإسكندرية" selected="@(Model.City == "الإسكندرية")">الإسكندرية</option>
+                            <option value="الشرقية" selected="@(Model.City == "الشرقية")">الشرقية</option>
+                            <option value="الدقهلية" selected="@(Model.City == "الدقهلية")">الدقهلية</option>
+                            <option value="أسوان" selected="@(Model.City == "أسوان")">أسوان</option>
+                        </select>
+                    </div>
+
+                    <!-- Toggles -->
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" name="inStockOnly" value="true" id="stockCheck" @(Model.InStockOnly ? "checked" : "")>
+                        <label class="form-check-label small" for="stockCheck">المتوفر في المخزن فقط</label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" name="verifiedOnly" value="true" id="verifiedCheck" @(Model.VerifiedOnly ? "checked" : "")>
+                        <label class="form-check-label small" for="verifiedCheck">متاجر موثقة فقط</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-accent btn-sm w-100 rounded-pill">تطبيق الفلاتر</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Product Listings -->
+        <div class="col-lg-9">
+            <!-- Top Controls -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 p-3 bg-white border rounded-3 shadow-sm gap-2">
+                <div class="small text-muted">
+                    تم العثور على <strong>@Model.TotalCount</strong> منتج
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="small text-muted text-nowrap mb-0">ترتيب حسب:</label>
+                    <form method="get" asp-action="Index" id="sortForm" class="d-inline">
+                        <input type="hidden" name="q" value="@Model.Query" />
+                        <input type="hidden" name="categoryId" value="@Model.CategoryId" />
+                        <input type="hidden" name="minPrice" value="@Model.MinPrice" />
+                        <input type="hidden" name="maxPrice" value="@Model.MaxPrice" />
+                        <input type="hidden" name="city" value="@Model.City" />
+                        <input type="hidden" name="inStockOnly" value="@Model.InStockOnly.ToString().ToLower()" />
+                        <input type="hidden" name="verifiedOnly" value="@Model.VerifiedOnly.ToString().ToLower()" />
+                        <select name="sortBy" class="form-select form-select-sm" onchange="document.getElementById('sortForm').submit();">
+                            <option value="newest" selected="@(Model.SortBy == "newest")">الأحدث وصولاً</option>
+                            <option value="price_asc" selected="@(Model.SortBy == "price_asc")">السعر: من الأقل للأعلى</option>
+                            <option value="price_desc" selected="@(Model.SortBy == "price_desc")">السعر: من الأعلى للأقل</option>
+                            <option value="popular" selected="@(Model.SortBy == "popular")">الأكثر مشاهدة</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            @if (!Model.Products.Any())
+            {
+                <div class="text-center py-5 bg-white border rounded-3">
+                    <i class="bi bi-search fs-1 text-muted"></i>
+                    <h5 class="fw-bold mt-3">لا توجد منتجات مطابقة للبحث</h5>
+                    <p class="text-muted small">جرّب تغيير كلمات البحث أو تخفيف الفلاتر للعثور على ما تبحث عنه.</p>
+                    <a asp-action="Index" class="btn btn-outline-accent btn-sm rounded-pill px-3">عرض جميع المنتجات</a>
+                </div>
+            }
+            else
+            {
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 mb-4">
+                    @foreach (var prod in Model.Products)
+                    {
+                        var img = prod.Images.FirstOrDefault()?.ImageUrl ?? "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600";
+                        <div class="col">
+                            <div class="card card-souqna product-card">
+                                @if (prod.SalePrice.HasValue && prod.SalePrice.Value < prod.Price)
+                                {
+                                    <span class="product-sale-tag">خصم</span>
+                                }
+                                <div class="product-img-wrapper">
+                                    <img src="@img" alt="@prod.Name" loading="lazy">
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column">
+                                    <div class="d-flex align-items-center justify-content-between small text-muted mb-1">
+                                        <span><i class="bi bi-shop me-1"></i>@(prod.Store?.StoreName ?? "متجر")</span>
+                                        @if (prod.Store?.IsVerified == true)
+                                        {
+                                            <span class="badge-verified"><i class="bi bi-patch-check-fill"></i> موثق</span>
+                                        }
+                                    </div>
+                                    <h6 class="card-title fw-bold mb-2">
+                                        <a asp-controller="Product" asp-action="Details" asp-route-slug="@prod.Slug" class="text-decoration-none text-reset text-truncate d-block">
+                                            @prod.Name
+                                        </a>
+                                    </h6>
+                                    <div class="mt-auto d-flex align-items-center justify-content-between">
+                                        <div>
+                                            @if (prod.SalePrice.HasValue)
+                                            {
+                                                <div class="product-price">@prod.SalePrice.Value.ToString("N0") <small class="fs-6">ج.م</small></div>
+                                                <div class="product-old-price">@prod.Price.ToString("N0") ج.م</div>
+                                            }
+                                            else
+                                            {
+                                                <div class="product-price">@prod.Price.ToString("N0") <small class="fs-6">ج.م</small></div>
+                                            }
+                                        </div>
+                                        <button class="btn btn-accent btn-sm rounded-pill px-3" onclick="addToCart(@prod.Id, 1)">
+                                            <i class="bi bi-cart-plus"></i> أضف
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <nav aria-label="Page navigation" class="d-flex justify-content-center">
+                        <ul class="pagination pagination-sm">
+                            <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" asp-action="Index" 
+                                   asp-route-page="@(Model.CurrentPage - 1)" 
+                                   asp-route-q="@Model.Query"
+                                   asp-route-categoryId="@Model.CategoryId"
+                                   asp-route-minPrice="@Model.MinPrice"
+                                   asp-route-maxPrice="@Model.MaxPrice"
+                                   asp-route-city="@Model.City"
+                                   asp-route-inStockOnly="@Model.InStockOnly"
+                                   asp-route-verifiedOnly="@Model.VerifiedOnly"
+                                   asp-route-sortBy="@Model.SortBy">السابق</a>
+                            </li>
+
+                            @for (int p = 1; p <= Model.TotalPages; p++)
+                            {
+                                <li class="page-item @(p == Model.CurrentPage ? "active" : "")">
+                                    <a class="page-link" asp-action="Index" 
+                                       asp-route-page="@p" 
+                                       asp-route-q="@Model.Query"
+                                       asp-route-categoryId="@Model.CategoryId"
+                                       asp-route-minPrice="@Model.MinPrice"
+                                       asp-route-maxPrice="@Model.MaxPrice"
+                                       asp-route-city="@Model.City"
+                                       asp-route-inStockOnly="@Model.InStockOnly"
+                                       asp-route-verifiedOnly="@Model.VerifiedOnly"
+                                       asp-route-sortBy="@Model.SortBy">@p</a>
+                                </li>
+                            }
+
+                            <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link" asp-action="Index" 
+                                   asp-route-page="@(Model.CurrentPage + 1)" 
+                                   asp-route-q="@Model.Query"
+                                   asp-route-categoryId="@Model.CategoryId"
+                                   asp-route-minPrice="@Model.MinPrice"
+                                   asp-route-maxPrice="@Model.MaxPrice"
+                                   asp-route-city="@Model.City"
+                                   asp-route-inStockOnly="@Model.InStockOnly"
+                                   asp-route-verifiedOnly="@Model.VerifiedOnly"
+                                   asp-route-sortBy="@Model.SortBy">التالي</a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+        </div>
+    </div>
+</div>

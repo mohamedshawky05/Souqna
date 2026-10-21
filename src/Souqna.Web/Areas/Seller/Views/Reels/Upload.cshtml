@@ -1,0 +1,70 @@
+@model Souqna.Web.ViewModels.VideoUploadViewModel
+@{
+    Layout = "_SellerLayout";
+    ViewData["Title"] = "رفع فيديو ريلز جديد";
+    int maxSeconds = ViewBag.MaxDurationSeconds ?? 60;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0"><i class="bi bi-camera-reels text-danger me-2"></i> رفع فيديو ريلز لمنتجك</h3>
+    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill btn-sm">العودة للفيديوهات</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card card-souqna p-4">
+            <div class="alert alert-info d-flex align-items-center gap-2 mb-4">
+                <i class="bi bi-info-circle-fill fs-5"></i>
+                <div>
+                    الحد الأقصى المسموح به لمدة الفيديو في باقتك الحالية هو <strong>@maxSeconds ثانية</strong>. يتم التحقق من مدة الفيديو على السيرفر قبل النشر.
+                </div>
+            </div>
+
+            <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label small fw-bold">عنوان الفيديو *</label>
+                    <input asp-for="Title" class="form-control" placeholder="مثال: تجربة عملية واستعراض خامة القميص القطني" required />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ProductId" class="form-label small fw-bold">المنتج المرتبط بالفيديو (اختياري ولكن يُنصح به بشدة)</label>
+                    <select asp-for="ProductId" asp-items="ViewBag.Products" class="form-select">
+                        <option value="">-- بدون ربط بمنتج محدد --</option>
+                    </select>
+                    <small class="text-muted">عند ربط المنتج، سيظهر زر الشراء والإضافة للسلة مباشرة فوق الفيديو أثناء مشاهدة العملاء للريلز.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="VideoFile" class="form-label small fw-bold">ملف الفيديو (MP4 أو WebM، حتى 100 ميجابايت) *</label>
+                    <input asp-for="VideoFile" class="form-control" type="file" accept="video/mp4,video/webm" required />
+                    <span asp-validation-for="VideoFile" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Description" class="form-label small fw-bold">وصف وتعليق إضافي</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="أضف وصفاً توضيحياً أو هاشتاجات..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-danger btn-lg px-5 rounded-pill shadow">
+                    <i class="bi bi-cloud-arrow-up me-1"></i> رفع ونشر الفيديو
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card card-souqna p-4 bg-light border">
+            <h6 class="fw-bold mb-3"><i class="bi bi-lightbulb text-warning me-1"></i> نصائح لريلز ناجح</h6>
+            <ul class="small text-muted d-flex flex-column gap-2 mb-0 ps-3">
+                <li>صوّر الفيديو بشكل عمودي (9:16) لملء شاشة الهاتف بالكامل.</li>
+                <li>احرص على الإضاءة الجيدة لإبراز تفاصيل المنتج وخامته.</li>
+                <li>ابدأ الفيديو بمشهد جذاب ومباشر في أول ثانيتين.</li>
+                <li>تأكد من عدم تجاوز مدة الفيديو @maxSeconds ثانية لتجنب رفض الرفع.</li>
+            </ul>
+        </div>
+    </div>
+</div>

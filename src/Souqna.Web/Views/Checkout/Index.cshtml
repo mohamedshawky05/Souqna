@@ -1,0 +1,136 @@
+@model Souqna.Core.DTOs.CheckoutDto
+@{
+    ViewData["Title"] = "إتمام الطلب وتحديد عنوان التوصيل - سوقنا";
+    var items = ViewBag.CartItems as List<Souqna.Core.Entities.CartItem> ?? new();
+}
+
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-shield-check text-success me-2"></i> إتمام الشراء وتأكيد العنوان</h3>
+
+    <form asp-action="Submit" method="post">
+        @Html.AntiForgeryToken()
+        <div class="row g-4">
+            <!-- Address & Customer Details -->
+            <div class="col-lg-7">
+                <div class="card card-souqna p-4 mb-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt text-primary me-2"></i> بيانات المستلم والتوصيل</h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">الاسم الكامل للمستلم *</label>
+                            <input asp-for="FullName" class="form-control" placeholder="مثال: أحمد محمد علي" required />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">رقم الهاتف المحمول للتواصل *</label>
+                            <input asp-for="Phone" class="form-control" placeholder="01xxxxxxxxx" required />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">المحافظة / المدينة *</label>
+                            <select asp-for="City" class="form-select" required>
+                                <option value="القاهرة">القاهرة</option>
+                                <option value="الجيزة">الجيزة</option>
+                                <option value="الإسكندرية">الإسكندرية</option>
+                                <option value="الشرقية">الشرقية</option>
+                                <option value="الدقهلية">الدقهلية</option>
+                                <option value="القليوبية">القليوبية</option>
+                                <option value="الغربية">الغربية</option>
+                                <option value="المنوفية">المنوفية</option>
+                                <option value="البحيرة">البحيرة</option>
+                                <option value="أسوان">أسوان</option>
+                                <option value="الأقصر">الأقصر</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">المنطقة / الحي *</label>
+                            <input asp-for="Area" class="form-control" placeholder="مثال: المعادي / الدقي / سموحة" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">عنوان الشارع بالتفصيل *</label>
+                            <input asp-for="StreetAddress" class="form-control" placeholder="اسم الشارع، علامة مميزة بجوار..." required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">رقم العمارة / المبنى</label>
+                            <input asp-for="BuildingNumber" class="form-control" placeholder="عمارة رقم" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">رقم الدور</label>
+                            <input asp-for="FloorNumber" class="form-control" placeholder="الدور" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">رقم الشقة</label>
+                            <input asp-for="ApartmentNumber" class="form-control" placeholder="شقة رقم" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">ملاحظات لمندوب التوصيل (اختياري)</label>
+                            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="أي تعليمات إضافية بخصوص موعد أو طريقة الاستلام..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="card card-souqna p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-wallet2 text-success me-2"></i> طريقة الدفع</h5>
+                    <div class="form-check p-3 border rounded-3 mb-3 bg-light">
+                        <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="@Souqna.Core.Enums.PaymentMethod.CashOnDelivery" id="payCod" checked>
+                        <label class="form-check-label fw-bold" for="payCod">
+                            <i class="bi bi-cash-stack text-success me-2 fs-5"></i>
+                            الدفع نقداً عند الاستلام (Cash on Delivery)
+                        </label>
+                        <small class="text-muted d-block mt-1">عاين وتأكد من محتويات الشحنة قبل سداد قيمتها لمندوب التوصيل.</small>
+                    </div>
+
+                    <div class="form-check p-3 border rounded-3 bg-light">
+                        <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="@Souqna.Core.Enums.PaymentMethod.MockCreditCard" id="payCard">
+                        <label class="form-check-label fw-bold" for="payCard">
+                            <i class="bi bi-credit-card text-primary me-2 fs-5"></i>
+                            بطاقة بنكية / بطاقة دفع إلكتروني (تجريبي)
+                        </label>
+                        <small class="text-muted d-block mt-1">محاكاة فورية للدفع الإلكتروني الآمن بدون سحب أموال فعلية أثناء التطوير.</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary Card -->
+            <div class="col-lg-5">
+                <div class="card card-souqna p-4 sticky-top" style="top: 80px;">
+                    <h5 class="fw-bold mb-3">محتويات الطلب (@items.Count منتج)</h5>
+                    <div class="overflow-auto mb-3" style="max-height: 250px;">
+                        @foreach (var it in items)
+                        {
+                            <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                                <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                    <span class="badge bg-secondary rounded-pill">@it.Quantity</span>
+                                    <span class="small fw-bold text-truncate" style="max-width: 180px;">@it.Product?.Name</span>
+                                </div>
+                                <span class="small fw-bold">@((it.Product!.Price * it.Quantity).ToString("N0")) ج.م</span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">المجموع الفرعي</span>
+                        <span class="fw-bold">@ViewBag.Subtotal.ToString("N0") ج.م</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">مصاريف الشحن (@ViewBag.StoresCount متجر)</span>
+                        <span class="fw-bold text-success">@ViewBag.DeliveryFee.ToString("N0") ج.م</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-baseline mb-4">
+                        <span class="fw-bold fs-5">الإجمالي المستحق</span>
+                        <span class="fs-3 fw-bold text-accent">@ViewBag.Total.ToString("N0") <small class="fs-6">ج.م</small></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-accent btn-lg w-100 rounded-pill py-3 fw-bold shadow">
+                        <i class="bi bi-check2-circle me-2"></i> تأكيد الطلب الآن
+                    </button>
+                    <small class="text-muted text-center d-block mt-2">
+                        بالضغط على تأكيد الطلب فإنك توافق على شروط وسياسات منصة سوقنا.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

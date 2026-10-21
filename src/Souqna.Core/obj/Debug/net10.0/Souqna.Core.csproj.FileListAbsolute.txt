@@ -1,0 +1,26 @@
+C:\Users\User\Desktop\job2\src\Souqna.Core\bin\Debug\net10.0\Souqna.Core.deps.json
+C:\Users\User\Desktop\job2\src\Souqna.Core\bin\Debug\net10.0\Souqna.Core.dll
+C:\Users\User\Desktop\job2\src\Souqna.Core\bin\Debug\net10.0\Souqna.Core.pdb
+C:\Users\User\Desktop\job2\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.csproj.AssemblyReference.cache
+C:\Users\User\Desktop\job2\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\Desktop\job2\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.AssemblyInfoInputs.cache
+C:\Users\User\Desktop\job2\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.AssemblyInfo.cs
+C:\Users\User\Desktop\job2\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.csproj.CoreCompileInputs.cache
+C:\Users\User\Desktop\job2\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.sourcelink.json
+C:\Users\User\Desktop\job2\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.dll
+C:\Users\User\Desktop\job2\src\Souqna.Core\obj\Debug\net10.0\refint\Souqna.Core.dll
+C:\Users\User\Desktop\job2\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.pdb
+C:\Users\User\Desktop\job2\src\Souqna.Core\obj\Debug\net10.0\ref\Souqna.Core.dll
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Core\bin\Debug\net10.0\Souqna.Core.deps.json
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Core\bin\Debug\net10.0\Souqna.Core.dll
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Core\bin\Debug\net10.0\Souqna.Core.pdb
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.csproj.AssemblyReference.cache
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.AssemblyInfoInputs.cache
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.AssemblyInfo.cs
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.csproj.CoreCompileInputs.cache
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.sourcelink.json
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.dll
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Core\obj\Debug\net10.0\refint\Souqna.Core.dll
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Core\obj\Debug\net10.0\Souqna.Core.pdb
+C:\Users\User\Desktop\job2\New folder\src\Souqna.Core\obj\Debug\net10.0\ref\Souqna.Core.dll

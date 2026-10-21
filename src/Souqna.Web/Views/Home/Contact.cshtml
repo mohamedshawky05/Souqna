@@ -1,0 +1,55 @@
+@{
+    ViewData["Title"] = "اتصل بنا - سوقنا";
+}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="fw-bold mb-3 text-primary">تواصل مع فريق سوقنا</h2>
+            <p class="text-muted mb-4">نحن هنا للإجابة على استفسارات التجار والمشترين ومساعدتك في تطوير متجرك.</p>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card card-souqna p-3 text-center">
+                        <i class="bi bi-envelope-fill fs-2 text-primary mb-2"></i>
+                        <h6 class="fw-bold">البريد الإلكتروني</h6>
+                        <p class="text-muted small mb-0">support@souqna.eg</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card card-souqna p-3 text-center">
+                        <i class="bi bi-telephone-fill fs-2 text-success mb-2"></i>
+                        <h6 class="fw-bold">خدمة العملاء</h6>
+                        <p class="text-muted small mb-0">01000000001 (من 9 ص إلى 6 م)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-souqna p-4">
+                <h5 class="fw-bold mb-3">أرسل لنا رسالة</h5>
+                <form onsubmit="event.preventDefault(); showToast('تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.', 'success'); this.reset();">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">الاسم</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">البريد الإلكتروني أو الهاتف</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">موضوع الرسالة</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">نص الرسالة</label>
+                            <textarea class="form-control" rows="4" required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-accent px-4 rounded-pill">إرسال الرسالة</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

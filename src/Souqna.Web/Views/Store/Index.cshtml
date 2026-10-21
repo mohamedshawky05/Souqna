@@ -1,0 +1,72 @@
+@model List<Souqna.Core.Entities.Store>
+@{
+    ViewData["Title"] = "دليل المتاجر المعتمدة - سوقنا";
+}
+
+<div class="container py-4">
+    <!-- Header & Search -->
+    <div class="bg-primary text-white p-4 rounded-4 mb-4 shadow" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%) !important;">
+        <div class="row align-items-center g-3">
+            <div class="col-md-7">
+                <span class="badge bg-success mb-2"><i class="bi bi-shield-check"></i> متاجر معتمدة وموثقة</span>
+                <h2 class="fw-bold mb-1">دليل المتاجر وأصحاب المشاريع</h2>
+                <p class="text-light text-opacity-75 small mb-0">اكتشف العلامات التجارية المصرية والمصانع والحرفيين المعتمدين واشترِ منهم مباشرة.</p>
+            </div>
+            <div class="col-md-5">
+                <form method="get" asp-action="Index" class="d-flex gap-2">
+                    <input type="text" name="q" value="@ViewBag.Query" class="form-control" placeholder="ابحث باسم المتجر...">
+                    <button type="submit" class="btn btn-accent rounded-pill px-4">بحث</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Store Grid -->
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 bg-white border rounded-3">
+            <i class="bi bi-shop fs-1 text-muted"></i>
+            <h5 class="fw-bold mt-3">لم يتم العثور على متاجر مطابقة</h5>
+            <a asp-action="Index" class="btn btn-outline-accent btn-sm rounded-pill mt-2">عرض جميع المتاجر</a>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var store in Model)
+            {
+                <div class="col">
+                    <div class="card card-souqna h-100 overflow-hidden">
+                        <!-- Cover Image -->
+                        <div style="height: 110px; background-color: #cbd5e1; overflow: hidden;">
+                            <img src="@(store.CoverUrl ?? "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=600")" style="width: 100%; height: 100%; object-fit: cover;" alt="غلاف المتجر">
+                        </div>
+                        <div class="card-body p-4 text-center position-relative pt-0">
+                            <!-- Logo Avatar -->
+                            <div class="mt-n5 mb-3 d-inline-block">
+                                <img src="@(store.LogoUrl ?? "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=150")" class="rounded-circle border border-3 border-white shadow" style="width: 80px; height: 80px; object-fit: cover; margin-top: -40px;" alt="@store.StoreName">
+                            </div>
+                            <h5 class="fw-bold mb-1">@store.StoreName</h5>
+                            <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
+                                <span class="badge bg-light text-dark border small"><i class="bi bi-geo-alt me-1 text-danger"></i>@store.City</span>
+                                @if (store.IsVerified)
+                                {
+                                    <span class="badge-verified"><i class="bi bi-patch-check-fill"></i> موثق</span>
+                                }
+                            </div>
+                            <p class="small text-muted mb-3" style="min-height: 42px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                @store.Description
+                            </p>
+                            <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                                <span class="small text-muted"><i class="bi bi-box-seam me-1"></i>@(store.Products?.Count ?? 0) منتج</span>
+                                <a asp-action="Details" asp-route-slug="@store.Slug" class="btn btn-outline-accent btn-sm rounded-pill px-3">
+                                    تصفح المتجر <i class="bi bi-arrow-left"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

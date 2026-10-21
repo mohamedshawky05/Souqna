@@ -1,0 +1,203 @@
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-bs-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - لوحة تحكم التاجر | سوقنا</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        .sidebar-seller {
+            min-height: calc(100vh - 65px);
+            background-color: var(--card-bg);
+            border-left: 1px solid var(--border-color);
+        }
+        .nav-link-seller {
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: var(--transition);
+        }
+        .nav-link-seller:hover, .nav-link-seller.active {
+            background-color: rgba(14, 165, 233, 0.1);
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+
+<a
+    href="https://wa.me/201553480299?text=%D8%A3%D9%87%D9%84%D8%A7%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A7%D9%84%D8%B9%D9%85%D9%84%20%D9%85%D8%B9%20Souqna"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="souqna-whatsapp"
+    aria-label="تواصل معنا عبر واتساب">
+    <span>عايز تشتغل معانا؟</span>
+    <strong>تواصل معنا على واتساب</strong>
+</a>
+
+<style>
+    .souqna-whatsapp {
+        position: fixed;
+        bottom: 22px;
+        right: 22px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding: 13px 18px;
+        border-radius: 16px;
+        background: #25D366;
+        color: #fff;
+        text-decoration: none;
+        box-shadow: 0 5px 20px #0002;
+        font-size: 13px;
+    }
+
+    .souqna-whatsapp strong {
+        font-size: 15px;
+    }
+
+    .souqna-whatsapp:hover {
+        background: #128C7E;
+        color: #fff;
+        transform: translateY(-2px);
+    }
+</style>
+
+<body>
+    @Html.AntiForgeryToken()
+
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-dark bg-dark px-3 py-2 border-bottom sticky-top" style="background-color: #0F172A !important;">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center gap-2" asp-area="" asp-controller="Home" asp-action="Index">
+                <span class="navbar-brand-badge"><i class="bi bi-shop"></i> سوقنا</span>
+                <span class="badge bg-success small">لوحة التاجر</span>
+            </a>
+
+            <div class="d-flex align-items-center gap-3">
+                @await Html.PartialAsync("_NotificationBell")
+
+                <button class="btn btn-sm btn-outline-light rounded-circle" type="button" onclick="toggleTheme()" title="تبديل المظهر">
+                    <i id="theme-toggle-icon" class="bi bi-moon-stars-fill"></i>
+                </button>
+
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                    <i class="bi bi-arrow-right"></i> العودة للمتجر
+                </a>
+
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-accent rounded-pill px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i> @user?.FullName
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Profile"><i class="bi bi-gear me-2"></i> حسابي</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i> خروج</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container with Sidebar -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-2 col-md-3 p-3 sidebar-seller">
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link-seller @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")" asp-area="Seller" asp-controller="Dashboard" asp-action="Index">
+                            <i class="bi bi-speedometer2"></i> نظرة عامة
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-seller @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")" asp-area="Seller" asp-controller="Products" asp-action="Index">
+                            <i class="bi bi-box-seam"></i> المنتجات
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-seller @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reels" ? "active" : "")" asp-area="Seller" asp-controller="Reels" asp-action="Index">
+                            <i class="bi bi-camera-reels"></i> فيديوهات الريلز
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-seller @(ViewContext.RouteData.Values["controller"]?.ToString() == "Orders" ? "active" : "")" asp-area="Seller" asp-controller="Orders" asp-action="Index">
+                            <i class="bi bi-receipt"></i> الطلبات الواردة
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-seller @(ViewContext.RouteData.Values["controller"]?.ToString() == "Subscriptions" ? "active" : "")" asp-area="Seller" asp-controller="Subscriptions" asp-action="Index">
+                            <i class="bi bi-gem"></i> الباقة والاستخدام
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-seller @(ViewContext.RouteData.Values["controller"]?.ToString() == "Verification" ? "active" : "")" asp-area="Seller" asp-controller="Verification" asp-action="Index">
+                            <i class="bi bi-patch-check"></i> توثيق الهوية
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-seller @(ViewContext.RouteData.Values["controller"]?.ToString() == "StoreSettings" ? "active" : "")" asp-area="Seller" asp-controller="StoreSettings" asp-action="Index">
+                            <i class="bi bi-sliders"></i> إعدادات المتجر
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-lg-10 col-md-9 p-4">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 shadow-sm" role="alert">
+                        <i class="bi bi-check-circle-fill fs-5"></i>
+                        <div>@TempData["SuccessMessage"]</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 shadow-sm" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                        <div>@TempData["ErrorMessage"]</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["WarningMessage"] != null)
+                {
+                    <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center gap-2 shadow-sm" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                        <div>@TempData["WarningMessage"]</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@10.0.13/dist/browser/signalr.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/notifications.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

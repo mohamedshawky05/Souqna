@@ -1,0 +1,60 @@
+@model List<Souqna.Core.Entities.Order>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "إدارة طلبات المنصة";
+    var currentStatus = ViewBag.CurrentStatus as Souqna.Core.Enums.OrderStatus?;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-receipt text-primary me-2"></i> جميع طلبات الشراء في المنصة</h3>
+        <p class="text-muted small mb-0">متابعة الطلبات العامة والشحنات الموزعة على المتاجر وتفاصيل الدفع والتسليم.</p>
+    </div>
+</div>
+
+<div class="card card-souqna p-4">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover mb-0">
+            <thead class="table-light">
+                <tr class="small text-muted">
+                    <th>رقم الطلب</th>
+                    <th>تاريخ الطلب</th>
+                    <th>طريقة الدفع</th>
+                    <th>الشحنات والمتاجر</th>
+                    <th>قيمة الطلب</th>
+                    <th>الحالة العامة</th>
+                    <th>إجراء</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ord in Model)
+                {
+                    <tr>
+                        <td class="fw-bold text-primary">@ord.OrderNumber</td>
+                        <td class="small text-muted">@ord.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                        <td><span class="badge bg-light text-dark border">@ord.PaymentMethod</span></td>
+                        <td>
+                            <div class="small">
+                                @foreach (var so in ord.StoreOrders)
+                                {
+                                    <span class="badge bg-light text-dark border me-1">@(so.Store?.StoreName ?? "متجر")</span>
+                                }
+                            </div>
+                        </td>
+                        <td class="fw-bold text-accent">@ord.TotalAmount.ToString("N0") ج.م</td>
+                        <td>
+                            <span class="badge @(ord.Status == Souqna.Core.Enums.OrderStatus.Delivered ? "bg-success" : ord.Status == Souqna.Core.Enums.OrderStatus.Canceled ? "bg-danger" : "bg-warning text-dark")">
+                                @ord.Status
+                            </span>
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@ord.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                تفاصيل الطلب
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

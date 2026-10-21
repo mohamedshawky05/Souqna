@@ -1,0 +1,40 @@
+@model List<Souqna.Core.Entities.AuditLog>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "سجل العمليات والأمان (Audit Log)";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-journal-text text-primary me-2"></i> سجل العمليات والأمان والرقابة (Audit Trail)</h3>
+        <p class="text-muted small mb-0">سجل غير قابل للتعديل لجميع القرارات الإدارية، توثيق الهويات، وتغييرات الصلاحيات.</p>
+    </div>
+</div>
+
+<div class="card card-souqna p-4">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover mb-0">
+            <thead class="table-light">
+                <tr class="small text-muted">
+                    <th>التاريخ والوقت (UTC)</th>
+                    <th>معرف المستخدم</th>
+                    <th>الإجراء (Action)</th>
+                    <th>الكيان (Entity)</th>
+                    <th>التفاصيل والملاحظات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model)
+                {
+                    <tr>
+                        <td class="small text-muted">@log.Timestamp.ToString("yyyy/MM/dd HH:mm:ss")</td>
+                        <td><code>@(log.UserId ?? "System")</code></td>
+                        <td><span class="badge bg-dark">@log.Action</span></td>
+                        <td><span class="badge bg-light text-dark border">@log.EntityName</span></td>
+                        <td class="small text-muted">@log.Details</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

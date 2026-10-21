@@ -1,0 +1,96 @@
+@model Souqna.Core.Entities.StoreOrder
+@{
+    Layout = "_SellerLayout";
+    ViewData["Title"] = $"إدارة الطلب {Model.ParentOrder?.OrderNumber}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">طلب رقم: @Model.ParentOrder?.OrderNumber</h3>
+        <span class="text-muted small">آخر تحديث: @Model.UpdatedAt.ToString("yyyy/MM/dd HH:mm")</span>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill btn-sm">العودة للطلبات</a>
+</div>
+
+<div class="row g-4">
+    <!-- Order Items & Status Update Form -->
+    <div class="col-lg-8">
+        <div class="card card-souqna p-4 mb-4">
+            <h5 class="fw-bold mb-3">المنتجات المطلوبة من متجرك</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
+                        <tr class="small text-muted">
+                            <th>المنتج</th>
+                            <th>السعر</th>
+                            <th>الكمية</th>
+                            <th>الإجمالي</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td class="fw-bold">@item.ProductName</td>
+                                <td>@item.UnitPrice.ToString("N0") ج.م</td>
+                                <td>@item.Quantity</td>
+                                <td class="text-accent fw-bold">@item.TotalPrice.ToString("N0") ج.م</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between small text-muted pt-2 border-top">
+                <span>تكلفة شحن متجرك: @Model.DeliveryFee.ToString("N0") ج.م</span>
+                <strong class="fs-5 text-accent">إجمالي مستحقات الشحنة: @Model.TotalAmount.ToString("N0") ج.م</strong>
+            </div>
+        </div>
+
+        <!-- Status Transition Form -->
+        <div class="card card-souqna p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-arrow-repeat text-primary me-2"></i> تحديث حالة الشحنة</h5>
+            <form asp-action="UpdateStatus" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">الحالة الجديدة</label>
+                        <select name="newStatus" class="form-select">
+                            <option value="@Souqna.Core.Enums.OrderStatus.Pending" selected="@(Model.Status == Souqna.Core.Enums.OrderStatus.Pending)">بانتظار التأكيد (Pending)</option>
+                            <option value="@Souqna.Core.Enums.OrderStatus.Confirmed" selected="@(Model.Status == Souqna.Core.Enums.OrderStatus.Confirmed)">مؤكد (Confirmed)</option>
+                            <option value="@Souqna.Core.Enums.OrderStatus.Processing" selected="@(Model.Status == Souqna.Core.Enums.OrderStatus.Processing)">قيد التجهيز والتغليف (Processing)</option>
+                            <option value="@Souqna.Core.Enums.OrderStatus.Shipped" selected="@(Model.Status == Souqna.Core.Enums.OrderStatus.Shipped)">تم تسليمه لشركة الشحن (Shipped)</option>
+                            <option value="@Souqna.Core.Enums.OrderStatus.Delivered" selected="@(Model.Status == Souqna.Core.Enums.OrderStatus.Delivered)">تم التسليم للعميل بنجاح (Delivered)</option>
+                            <option value="@Souqna.Core.Enums.OrderStatus.Canceled" selected="@(Model.Status == Souqna.Core.Enums.OrderStatus.Canceled)">ملغي (Canceled)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">رقم بوليصة / تتبع الشحن</label>
+                        <input type="text" name="trackingNumber" value="@Model.TrackingNumber" class="form-control" placeholder="مثال: EGY-EXP-99214">
+                    </div>
+                    <div class="col-12 mt-3">
+                        <button type="submit" class="btn btn-accent rounded-pill px-4">تحديث الحالة</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Customer Address Details -->
+    <div class="col-lg-4">
+        <div class="card card-souqna p-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt text-danger me-2"></i> بيانات التوصيل والمشتري</h6>
+            <div class="small text-muted lh-base">
+                @Model.ParentOrder?.DeliveryAddressJson
+            </div>
+            @if (!string.IsNullOrEmpty(Model.ParentOrder?.Notes))
+            {
+                <div class="alert alert-light border small mt-3 mb-0">
+                    <strong>ملاحظات العميل:</strong> @Model.ParentOrder.Notes
+                </div>
+            }
+        </div>
+    </div>
+</div>

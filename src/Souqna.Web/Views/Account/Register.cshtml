@@ -1,0 +1,105 @@
+@model Souqna.Web.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "إنشاء حساب جديد - سوقنا";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card card-souqna p-4 p-md-5 shadow-lg">
+                <div class="text-center mb-4">
+                    <span class="navbar-brand-badge fs-4 mb-2">
+                        <i class="bi bi-shop"></i>
+                        <span>سوقنا</span>
+                    </span>
+                    <h4 class="fw-bold mt-2">إنشاء حساب جديد</h4>
+                    <p class="text-muted small">انضم إلى مجتمع سوقنا كمشترٍ أو تاجر</p>
+                </div>
+
+                <form asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-3" role="alert"></div>
+
+                    <!-- Role Switcher -->
+                    <div class="mb-4 text-center p-3 bg-light rounded-3 border">
+                        <label class="form-label fw-bold small d-block mb-2">نوع الحساب</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="IsSeller" id="roleCustomer" value="false" checked onchange="toggleSellerFields(false)">
+                            <label class="btn btn-outline-primary" for="roleCustomer"><i class="bi bi-person me-1"></i> حساب مشتري</label>
+
+                            <input type="radio" class="btn-check" name="IsSeller" id="roleSeller" value="true" onchange="toggleSellerFields(true)">
+                            <label class="btn btn-outline-success" for="roleSeller"><i class="bi bi-shop me-1"></i> تاجر / متجر</label>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-12">
+                            <label asp-for="FullName" class="form-label small fw-bold">الاسم الكامل *</label>
+                            <input asp-for="FullName" class="form-control" placeholder="أحمد محمد" required />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Email" class="form-label small fw-bold">البريد الإلكتروني *</label>
+                            <input asp-for="Email" class="form-control" placeholder="name@example.com" required />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="PhoneNumber" class="form-label small fw-bold">رقم الهاتف المحمول (مصر) *</label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="01xxxxxxxxx" required />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Seller specific fields -->
+                        <div id="sellerFields" class="col-12" style="display: none;">
+                            <div class="p-3 bg-light rounded-3 border border-success border-opacity-25">
+                                <h6 class="fw-bold text-success mb-3"><i class="bi bi-shop me-1"></i> بيانات المتجر الأساسية</h6>
+                                <div class="mb-2">
+                                    <label asp-for="StoreName" class="form-label small fw-bold">اسم المتجر / العلامة التجارية *</label>
+                                    <input asp-for="StoreName" class="form-control form-control-sm" placeholder="مثال: متجر الزهور للأزياء" />
+                                </div>
+                                <div>
+                                    <label asp-for="City" class="form-label small fw-bold">المحافظة / المدينة</label>
+                                    <select asp-for="City" class="form-select form-select-sm">
+                                        <option value="القاهرة">القاهرة</option>
+                                        <option value="الجيزة">الجيزة</option>
+                                        <option value="الإسكندرية">الإسكندرية</option>
+                                        <option value="الشرقية">الشرقية</option>
+                                        <option value="الدقهلية">الدقهلية</option>
+                                        <option value="أسوان">أسوان</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label small fw-bold">كلمة المرور *</label>
+                            <input asp-for="Password" class="form-control" placeholder="••••••••" required />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ConfirmPassword" class="form-label small fw-bold">تأكيد كلمة المرور *</label>
+                            <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" required />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-accent btn-lg w-100 rounded-pill fw-bold mb-3 shadow">
+                        إنشاء الحساب <i class="bi bi-check-lg ms-1"></i>
+                    </button>
+
+                    <div class="text-center small text-muted">
+                        لديك حساب بالفعل؟ <a asp-action="Login" class="text-accent fw-bold text-decoration-none">تسجيل الدخول</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function toggleSellerFields(isSeller) {
+        document.getElementById('sellerFields').style.display = isSeller ? 'block' : 'none';
+    }
+</script>
+}

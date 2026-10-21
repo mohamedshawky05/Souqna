@@ -1,0 +1,262 @@
+@model Souqna.Web.ViewModels.ProductDetailsViewModel
+@{
+    ViewData["Title"] = $"{Model.Product.Name} - سوقنا";
+    var mainImage = Model.Product.Images.FirstOrDefault(i => i.IsMain)?.ImageUrl 
+                    ?? Model.Product.Images.FirstOrDefault()?.ImageUrl 
+                    ?? "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800";
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">الرئيسية</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Marketplace" asp-action="Index" class="text-decoration-none">السوق</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Marketplace" asp-action="Index" asp-route-categoryId="@Model.Product.CategoryId" class="text-decoration-none">@(Model.Product.Category?.NameAr ?? "القسم")</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Product.Name</li>
+        </ol>
+    </nav>
+
+    <!-- Product Main Card -->
+    <div class="card card-souqna p-4 mb-4">
+        <div class="row g-4">
+            <!-- Image Gallery -->
+            <div class="col-lg-5">
+                <div class="border rounded-3 overflow-hidden bg-light mb-3 text-center" style="max-height: 450px;">
+                    <img id="main-product-img" src="@mainImage" alt="@Model.Product.Name" class="img-fluid" style="max-height: 450px; object-fit: contain;">
+                </div>
+                @if (Model.Product.Images.Count > 1)
+                {
+                    <div class="d-flex gap-2 overflow-auto py-1">
+                        @foreach (var img in Model.Product.Images)
+                        {
+                            <img src="@img.ImageUrl" class="rounded border p-1" style="width: 70px; height: 70px; object-fit: cover; cursor: pointer;" onclick="document.getElementById('main-product-img').src='@img.ImageUrl';" alt="صورة إضافية">
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Product Info -->
+            <div class="col-lg-7">
+                <!-- Seller Bar -->
+                <div class="d-flex align-items-center justify-content-between p-2 mb-3 bg-light rounded-3 border">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="@(Model.Product.Store?.LogoUrl ?? "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=100")" class="rounded-circle border" style="width: 36px; height: 36px; object-fit: cover;" alt="لوجو المتجر">
+                        <div>
+                            <a asp-controller="Store" asp-action="Details" asp-route-slug="@Model.Product.Store?.Slug" class="fw-bold text-decoration-none text-dark small">
+                                @(Model.Product.Store?.StoreName ?? "متجر")
+                            </a>
+                            <div class="text-muted" style="font-size: 0.75rem;"><i class="bi bi-geo-alt me-1"></i>@(Model.Product.Store?.City ?? "مصر")</div>
+                        </div>
+                    </div>
+                    <div>
+                        @if (Model.Product.Store?.IsVerified == true)
+                        {
+                            <span class="badge-verified"><i class="bi bi-patch-check-fill"></i> متجر موثق</span>
+                        }
+                    </div>
+                </div>
+
+                <h2 class="fw-bold mb-2">@Model.Product.Name</h2>
+
+                <!-- Rating & Reviews Count -->
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="text-warning">
+                        @for (int s = 1; s <= 5; s++)
+                        {
+                            <i class="bi @(s <= Model.AverageRating ? "bi-star-fill" : "bi-star")"></i>
+                        }
+                    </div>
+                    <span class="small fw-bold">@Model.AverageRating.ToString("0.0")</span>
+                    <span class="text-muted small">(@Model.TotalReviews تقييم)</span>
+                    <span class="text-muted small">|</span>
+                    <span class="text-muted small"><i class="bi bi-eye me-1"></i>@Model.Product.ViewCount مشاهدة</span>
+                </div>
+
+                <!-- Price Box -->
+                <div class="p-3 bg-light rounded-3 mb-3 border">
+                    <div class="d-flex align-items-baseline gap-3">
+                        @if (Model.Product.SalePrice.HasValue)
+                        {
+                            <span class="fs-2 fw-bold text-accent">@Model.Product.SalePrice.Value.ToString("N0") <small class="fs-5">ج.م</small></span>
+                            <span class="text-decoration-line-through text-muted fs-5">@Model.Product.Price.ToString("N0") ج.م</span>
+                            <span class="badge bg-danger">وفر @((Model.Product.Price - Model.Product.SalePrice.Value).ToString("N0")) ج.م</span>
+                        }
+                        else
+                        {
+                            <span class="fs-2 fw-bold text-accent">@Model.Product.Price.ToString("N0") <small class="fs-5">ج.م</small></span>
+                        }
+                    </div>
+                    <small class="text-muted">الأسعار تشمل ضريبة القيمة المضافة ومصاريف التوصيل تُحسب عند الدفع</small>
+                </div>
+
+                <!-- Stock Availability -->
+                <div class="mb-3">
+                    @if (Model.Product.StockQuantity > 0)
+                    {
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill">
+                            <i class="bi bi-check-circle-fill me-1"></i> متوفر في المخزن (@Model.Product.StockQuantity قطعة متاحة)
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-2 rounded-pill">
+                            <i class="bi bi-x-circle-fill me-1"></i> نفذت الكمية حالياً
+                        </span>
+                    }
+                </div>
+
+                <!-- Purchase Controls -->
+                @if (Model.Product.StockQuantity > 0)
+                {
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="input-group" style="width: 130px;">
+                            <button class="btn btn-outline-secondary" type="button" onclick="let q = document.getElementById('buy-qty'); if(q.value > 1) q.value--;">-</button>
+                            <input type="number" id="buy-qty" class="form-control text-center" value="1" min="1" max="@Model.Product.StockQuantity">
+                            <button class="btn btn-outline-secondary" type="button" onclick="let q = document.getElementById('buy-qty'); if(q.value < @Model.Product.StockQuantity) q.value++;">+</button>
+                        </div>
+                        <button class="btn btn-accent btn-lg px-4 rounded-pill flex-grow-1" onclick="addToCart(@Model.Product.Id, parseInt(document.getElementById('buy-qty').value))">
+                            <i class="bi bi-cart-plus-fill me-2"></i> إضافة إلى سلة الشراء
+                        </button>
+                    </div>
+                }
+
+                <!-- SKU & Category Details -->
+                <div class="small text-muted pt-3 border-top">
+                    @if (!string.IsNullOrEmpty(Model.Product.SKU))
+                    {
+                        <div class="mb-1"><strong>كود المنتج (SKU):</strong> @Model.Product.SKU</div>
+                    }
+                    <div><strong>القسم:</strong> @(Model.Product.Category?.NameAr ?? "عام")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Description & Reviews Tabs -->
+    <div class="card card-souqna p-4 mb-4">
+        <ul class="nav nav-tabs mb-4" id="productTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc" type="button" role="tab" aria-controls="desc" aria-selected="true">
+                    <i class="bi bi-card-text me-1"></i> تفاصيل ووصف المنتج
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">
+                    <i class="bi bi-chat-left-text me-1"></i> تقييمات المشترين (@Model.TotalReviews)
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="productTabContent">
+            <!-- Description Tab -->
+            <div class="tab-pane fade show active" id="desc" role="tabpanel" aria-labelledby="desc-tab">
+                <div class="lh-lg text-secondary" style="white-space: pre-line;">
+                    @Model.Product.Description
+                </div>
+            </div>
+
+            <!-- Reviews Tab -->
+            <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                <!-- Add Review Form (for eligible purchasers or logged-in users) -->
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="bg-light p-3 rounded-3 mb-4 border">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-pencil-square me-1 text-primary"></i> اكتب تقييمك للمنتج</h6>
+                        <form asp-action="AddReview" method="post">
+                            <input type="hidden" name="productId" value="@Model.Product.Id" />
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">التقييم بالنجوم</label>
+                                    <select name="rating" class="form-select form-select-sm">
+                                        <option value="5">⭐⭐⭐⭐⭐ ممتاز (5 من 5)</option>
+                                        <option value="4">⭐⭐⭐⭐ جيد جداً (4 من 5)</option>
+                                        <option value="3">⭐⭐⭐ جيد (3 من 5)</option>
+                                        <option value="2">⭐⭐ مقبول (2 من 5)</option>
+                                        <option value="1">⭐ ضعيف (1 من 5)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label small fw-bold">ملاحظاتك وتجربتك</label>
+                                    <textarea name="comment" class="form-control form-control-sm" rows="2" placeholder="شارك رأيك الصادق لمساعدة المشترين الآخرين..." required></textarea>
+                                </div>
+                                <div class="col-12 text-end">
+                                    <button type="submit" class="btn btn-accent btn-sm rounded-pill px-4">إرسال التقييم</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info small py-2">
+                        <i class="bi bi-info-circle me-1"></i> يرجى <a asp-controller="Account" asp-action="Login">تسجيل الدخول</a> لتتمكن من تقييم المنتج.
+                    </div>
+                }
+
+                <!-- Reviews List -->
+                @if (!Model.Product.Reviews.Any())
+                {
+                    <p class="text-muted small">لا توجد تقييمات لهذا المنتج حتى الآن. كن أول من يقيّمه!</p>
+                }
+                else
+                {
+                    <div class="d-flex flex-column gap-3">
+                        @foreach (var rev in Model.Product.Reviews.OrderByDescending(r => r.CreatedAt))
+                        {
+                            <div class="p-3 border rounded-3 bg-white">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="fw-bold small">
+                                        <i class="bi bi-person-check-fill text-success me-1"></i> @(rev.User?.FullName ?? "مشترٍ معتمد")
+                                    </div>
+                                    <div class="text-warning small">
+                                        @for (int s = 1; s <= 5; s++)
+                                        {
+                                            <i class="bi @(s <= rev.Rating ? "bi-star-fill" : "bi-star")"></i>
+                                        }
+                                        <span class="text-muted ms-2" style="font-size: 0.75rem;">@rev.CreatedAt.ToString("yyyy/MM/dd")</span>
+                                    </div>
+                                </div>
+                                <p class="small text-muted mb-0">@rev.Comment</p>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    @if (Model.RelatedProducts.Any())
+    {
+        <div class="mt-5">
+            <h4 class="fw-bold mb-3">منتجات قد تعجبك أيضاً</h4>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+                @foreach (var rel in Model.RelatedProducts)
+                {
+                    var relImg = rel.Images.FirstOrDefault()?.ImageUrl ?? "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600";
+                    <div class="col">
+                        <div class="card card-souqna product-card">
+                            <div class="product-img-wrapper">
+                                <img src="@relImg" alt="@rel.Name" loading="lazy">
+                            </div>
+                            <div class="card-body p-3 d-flex flex-column">
+                                <h6 class="card-title fw-bold mb-2">
+                                    <a asp-action="Details" asp-route-slug="@rel.Slug" class="text-decoration-none text-reset text-truncate d-block">
+                                        @rel.Name
+                                    </a>
+                                </h6>
+                                <div class="mt-auto d-flex align-items-center justify-content-between">
+                                    <div class="product-price">@rel.Price.ToString("N0") <small class="fs-6">ج.م</small></div>
+                                    <button class="btn btn-outline-accent btn-sm rounded-pill px-3" onclick="addToCart(@rel.Id, 1)">
+                                        <i class="bi bi-cart-plus"></i> أضف
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

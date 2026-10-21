@@ -1,0 +1,136 @@
+@model Souqna.Web.ViewModels.ReelsFeedViewModel
+@{
+    ViewData["Title"] = "ريلز سوقنا (Souqna Reels) - استعراض المنتجات بالفيديو";
+}
+
+<div class="container py-3">
+    <div class="text-center mb-3">
+        <h4 class="fw-bold mb-1"><i class="bi bi-play-circle-fill text-danger me-2"></i> ريلز سوقنا (Souqna Reels)</h4>
+        <p class="text-muted small mb-0">مرر للأسفل لاستعراض فيديوهات المنتجات الحية والشراء مباشرة من البائعين المعتمدين</p>
+    </div>
+
+    @if (!Model.Videos.Any())
+    {
+        <div class="text-center py-5 bg-white border rounded-3 max-w-md mx-auto" style="max-width: 480px;">
+            <i class="bi bi-camera-reels fs-1 text-muted"></i>
+            <h5 class="fw-bold mt-2">لا توجد فيديوهات ريلز منشورة حالياً</h5>
+            <p class="text-muted small">كن أول من ينشر فيديو ريلز لمنتجك من لوحة تحكم التاجر!</p>
+            <a asp-area="Seller" asp-controller="Reels" asp-action="Upload" class="btn btn-accent btn-sm rounded-pill px-3">
+                رفع فيديو ريلز جديد
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="reels-container">
+            @foreach (var video in Model.Videos)
+            {
+                <div class="reel-item" data-video-id="@video.Id">
+                    <!-- HTML5 Video Player -->
+                    <video class="reel-video" loop playsinline preload="metadata" poster="@(video.ThumbnailUrl ?? "/images/reels-default-thumb.jpg")">
+                        <source src="@video.VideoUrl" type="video/mp4">
+                        متصفحك لا يدعم تشغيل الفيديو.
+                    </video>
+
+                    <!-- Top Bar: Sponsored / Store Badge -->
+                    <div class="position-absolute top-0 start-0 end-0 p-3 d-flex justify-content-between align-items-center" style="z-index: 20;">
+                        <div>
+                            @if (video.IsSponsored)
+                            {
+                                <span class="badge bg-warning text-dark fw-bold"><i class="bi bi-badge-ad me-1"></i> إعلان ممول</span>
+                            }
+                        </div>
+                        <button class="btn btn-sm btn-dark bg-opacity-50 text-white rounded-circle p-2" onclick="toggleMute(this)" title="كتم/تشغيل الصوت">
+                            <i class="bi bi-volume-up-fill fs-5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Right Side Actions (Likes, Share, Report) -->
+                    <div class="reel-actions">
+                        <!-- Like Button -->
+                        <button class="reel-action-btn" onclick="toggleLikeReel(this, @video.Id)">
+                            <i class="bi bi-heart fs-4"></i>
+                            <span class="like-count" style="font-size: 0.7rem; font-weight: bold;">@video.LikesCount</span>
+                        </button>
+
+                        <!-- Share Button -->
+                        <button class="reel-action-btn" onclick="navigator.clipboard.writeText(window.location.origin + '/Reels?id=@video.Id'); showToast('تم نسخ رابط الفيديو إلى الحافظة!', 'success');" title="مشاركة">
+                            <i class="bi bi-share fs-4"></i>
+                            <span style="font-size: 0.7rem;">مشاركة</span>
+                        </button>
+
+                        <!-- Store Link Button -->
+                        <a asp-controller="Store" asp-action="Details" asp-route-slug="@video.Store?.Slug" class="reel-action-btn text-white text-decoration-none" title="زيارة المتجر">
+                            <i class="bi bi-shop fs-4"></i>
+                            <span style="font-size: 0.7rem;">المتجر</span>
+                        </a>
+                    </div>
+
+                    <!-- Bottom Overlay (Title, Seller Info, Product Card) -->
+                    <div class="reel-overlay">
+                        <!-- Seller Header -->
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <img src="@(video.Store?.LogoUrl ?? "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=100")" class="rounded-circle border border-2 border-white" style="width: 38px; height: 38px; object-fit: cover;" alt="@video.Store?.StoreName">
+                            <div>
+                                <a asp-controller="Store" asp-action="Details" asp-route-slug="@video.Store?.Slug" class="text-white fw-bold text-decoration-none small d-flex align-items-center gap-1">
+                                    @(video.Store?.StoreName ?? "متجر")
+                                    @if (video.Store?.IsVerified == true)
+                                    {
+                                        <i class="bi bi-patch-check-fill text-success" title="متجر موثق"></i>
+                                    }
+                                </a>
+                                <div class="text-white-50" style="font-size: 0.7rem;">@video.Store?.City</div>
+                            </div>
+                        </div>
+
+                        <!-- Video Title & Description -->
+                        <h6 class="fw-bold mb-1 text-white">@video.Title</h6>
+                        @if (!string.IsNullOrEmpty(video.Description))
+                        {
+                            <p class="small text-white-50 mb-2 text-truncate">@video.Description</p>
+                        }
+
+                        <!-- Linked Product Quick-Buy Card -->
+                        @if (video.Product != null)
+                        {
+                            <div class="reel-product-card">
+                                <img src="@(video.Product.Images.FirstOrDefault()?.ImageUrl ?? "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100")" class="rounded border" style="width: 48px; height: 48px; object-fit: cover;" alt="@video.Product.Name">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="small fw-bold text-white text-truncate">@video.Product.Name</div>
+                                    <div class="text-info fw-bold small">
+                                        @(video.Product.SalePrice ?? video.Product.Price) ج.م
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-accent btn-sm rounded-pill px-3" onclick="addToCart(@video.Product.Id, 1)">
+                                        <i class="bi bi-cart-plus-fill"></i> شراء
+                                    </button>
+                                    <a asp-controller="Product" asp-action="Details" asp-route-slug="@video.Product.Slug" class="btn btn-outline-light btn-sm rounded-pill px-2">
+                                        <i class="bi bi-arrow-left"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    function toggleMute(btn) {
+        const activeVideo = document.querySelector('.reel-item video:not([paused])') || document.querySelector('.reel-item video');
+        if (activeVideo) {
+            activeVideo.muted = !activeVideo.muted;
+            const icon = btn.querySelector('i');
+            if (activeVideo.muted) {
+                icon.className = 'bi bi-volume-mute-fill fs-5 text-warning';
+            } else {
+                icon.className = 'bi bi-volume-up-fill fs-5';
+            }
+        }
+    }
+</script>
+}

@@ -1,0 +1,77 @@
+@model List<Souqna.Core.Entities.IdentityVerification>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "طابور مراجعة توثيق الهوية";
+    var currentStatus = ViewBag.CurrentStatus as Souqna.Core.Enums.VerificationStatus?;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-shield-check text-success me-2"></i> طابور مراجعة توثيق الهوية (KYC Queue)</h3>
+        <p class="text-muted small mb-0">فحص بطاقات الرقم القومي المصري يدوياً والتأكد من مطابقة بيانات التاجر.</p>
+    </div>
+</div>
+
+<!-- Status Filters -->
+<div class="d-flex flex-wrap gap-2 mb-4">
+    <a asp-action="Index" class="btn btn-sm rounded-pill @(!currentStatus.HasValue ? "btn-primary" : "btn-outline-secondary")">الكل (@Model.Count)</a>
+    <a asp-action="Index" asp-route-status="@Souqna.Core.Enums.VerificationStatus.Pending" class="btn btn-sm rounded-pill @(currentStatus == Souqna.Core.Enums.VerificationStatus.Pending ? "btn-warning" : "btn-outline-secondary")">قيد الانتظار (Pending)</a>
+    <a asp-action="Index" asp-route-status="@Souqna.Core.Enums.VerificationStatus.UnderReview" class="btn btn-sm rounded-pill @(currentStatus == Souqna.Core.Enums.VerificationStatus.UnderReview ? "btn-info" : "btn-outline-secondary")">قيد الفحص (UnderReview)</a>
+    <a asp-action="Index" asp-route-status="@Souqna.Core.Enums.VerificationStatus.Approved" class="btn btn-sm rounded-pill @(currentStatus == Souqna.Core.Enums.VerificationStatus.Approved ? "btn-success" : "btn-outline-secondary")">معتمد وموثق (Approved)</a>
+    <a asp-action="Index" asp-route-status="@Souqna.Core.Enums.VerificationStatus.Rejected" class="btn btn-sm rounded-pill @(currentStatus == Souqna.Core.Enums.VerificationStatus.Rejected ? "btn-danger" : "btn-outline-secondary")">مرفوض (Rejected)</a>
+</div>
+
+<div class="card card-souqna p-4">
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-patch-check fs-1 text-muted"></i>
+            <h5 class="fw-bold mt-2">لا توجد طلبات في هذه الحالة</h5>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle table-hover mb-0">
+                <thead class="table-light">
+                    <tr class="small text-muted">
+                        <th>المتجر والتاجر</th>
+                        <th>الاسم القانوني</th>
+                        <th>الرقم القومي</th>
+                        <th>المستندات</th>
+                        <th>تاريخ التقديم</th>
+                        <th>الحالة</th>
+                        <th>إجراء الفحص</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var req in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold">@req.Store?.StoreName</div>
+                                <small class="text-muted">@req.Store?.Seller?.Email</small>
+                            </td>
+                            <td>@req.FullLegalName</td>
+                            <td><code>@req.NationalIdNumber</code></td>
+                            <td>
+                                <span class="badge bg-light text-dark border">@req.Documents.Count مستندات</span>
+                            </td>
+                            <td class="small text-muted">@req.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td>
+                                <span class="badge @(req.Status == Souqna.Core.Enums.VerificationStatus.Approved ? "bg-success" : req.Status == Souqna.Core.Enums.VerificationStatus.Rejected ? "bg-danger" : "bg-warning text-dark")">
+                                    @req.Status
+                                </span>
+                            </td>
+                            <td>
+                                <a asp-action="Review" asp-route-id="@req.Id" class="btn btn-sm btn-accent rounded-pill px-3">
+                                    <i class="bi bi-search me-1"></i> فحص واتخاذ القرار
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

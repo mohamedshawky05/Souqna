@@ -1,0 +1,129 @@
+@model Souqna.Web.ViewModels.IdentityVerificationFormViewModel
+@{
+    Layout = "_SellerLayout";
+    ViewData["Title"] = "توثيق الهوية والمتجر";
+    var store = ViewBag.Store as Souqna.Core.Entities.Store;
+    var latestRequest = ViewBag.LatestRequest as Souqna.Core.Entities.IdentityVerification;
+    bool isPhoneVerified = ViewBag.IsPhoneVerified ?? false;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-shield-check text-success me-2"></i> توثيق هوية المتجر (KYC)</h3>
+        <p class="text-muted small mb-0">نظام التحقق الرسمي المعتمد بالبطاقة القومية لحماية حقوق المشترين والتجار.</p>
+    </div>
+</div>
+
+<!-- Badges Status Bar -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card card-souqna p-3 d-flex flex-row align-items-center gap-3">
+            <i class="bi @(isPhoneVerified ? "bi-telephone-fill text-success" : "bi-telephone text-muted") fs-2"></i>
+            <div>
+                <h6 class="fw-bold mb-0">توثيق رقم الهاتف</h6>
+                <small class="@(isPhoneVerified ? "text-success fw-bold" : "text-muted")">
+                    @(isPhoneVerified ? "Phone Verified (موثق)" : "غير موثق بعد")
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-souqna p-3 d-flex flex-row align-items-center gap-3">
+            <i class="bi @(store?.IsVerified == true ? "bi-person-badge-fill text-success" : "bi-person-badge text-muted") fs-2"></i>
+            <div>
+                <h6 class="fw-bold mb-0">توثيق بطاقة الرقم القومي</h6>
+                <small class="@(store?.IsVerified == true ? "text-success fw-bold" : "text-muted")">
+                    @(store?.IsVerified == true ? "Identity Verified (معتمد)" : "قيد الإجراء أو غير مقدم")
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-souqna p-3 d-flex flex-row align-items-center gap-3">
+            <i class="bi @(store?.IsVerified == true ? "bi-patch-check-fill text-success" : "bi-patch-check text-muted") fs-2"></i>
+            <div>
+                <h6 class="fw-bold mb-0">شارة المتجر المعتمد</h6>
+                <small class="@(store?.IsVerified == true ? "text-success fw-bold" : "text-muted")">
+                    @(store?.IsVerified == true ? "Store Verified (شعار أخضر)" : "غير مفعلة")
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Latest Request Status (if any) -->
+@if (latestRequest != null)
+{
+    <div class="card card-souqna p-4 mb-4 @(latestRequest.Status == Souqna.Core.Enums.VerificationStatus.Approved ? "border-success bg-light" : latestRequest.Status == Souqna.Core.Enums.VerificationStatus.Rejected ? "border-danger bg-light" : "border-warning bg-light")">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="fw-bold mb-0">حالة آخر طلب توثيق تم تقديمه</h5>
+            <span class="badge @(latestRequest.Status == Souqna.Core.Enums.VerificationStatus.Approved ? "bg-success" : latestRequest.Status == Souqna.Core.Enums.VerificationStatus.Rejected ? "bg-danger" : "bg-warning text-dark") fs-6">
+                @latestRequest.Status
+            </span>
+        </div>
+        <p class="small text-muted mb-2">تاريخ التقديم: @latestRequest.CreatedAt.ToString("yyyy/MM/dd HH:mm")</p>
+
+        @if (!string.IsNullOrEmpty(latestRequest.ReviewerNotes))
+        {
+            <div class="alert alert-light border small mt-2 mb-0">
+                <strong>ملاحظات المراجع والإدارة:</strong> @latestRequest.ReviewerNotes
+            </div>
+        }
+    </div>
+}
+
+<!-- Submission Form -->
+@if (store?.IsVerified != true && (latestRequest == null || latestRequest.Status == Souqna.Core.Enums.VerificationStatus.Rejected || latestRequest.Status == Souqna.Core.Enums.VerificationStatus.ResubmissionRequired))
+{
+    <div class="card card-souqna p-4 max-w-2xl">
+        <h5 class="fw-bold mb-3"><i class="bi bi-upload text-primary me-2"></i> تقديم مستندات الهوية للمراجعة</h5>
+        <form asp-action="Submit" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-3"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="NationalIdNumber" class="form-label small fw-bold">الرقم القومي المصري (14 رقماً) *</label>
+                    <input asp-for="NationalIdNumber" class="form-control" placeholder="2xxxxxxxxxxxxx" maxlength="14" required />
+                    <span asp-validation-for="NationalIdNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="FullLegalName" class="form-label small fw-bold">الاسم القانوني الرباعي (كما في البطاقة) *</label>
+                    <input asp-for="FullLegalName" class="form-control" placeholder="مثال: محمد أحمد علي حسين" required />
+                    <span asp-validation-for="FullLegalName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="FrontIdImage" class="form-label small fw-bold">صورة وجه البطاقة القومية *</label>
+                    <input asp-for="FrontIdImage" class="form-control" type="file" accept="image/*,application/pdf" required />
+                    <span asp-validation-for="FrontIdImage" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="BackIdImage" class="form-label small fw-bold">صورة ظهر البطاقة القومية *</label>
+                    <input asp-for="BackIdImage" class="form-control" type="file" accept="image/*,application/pdf" required />
+                    <span asp-validation-for="BackIdImage" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <div class="p-3 bg-light rounded-3 border small">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" asp-for="PrivacyNoticeAcknowledged" id="privacyConsent" required>
+                            <label class="form-check-label fw-bold" for="privacyConsent">
+                                أقر وأوافق صراحة على إشعار الخصوصية واستخدام مستنداتي حصراً لغرض التحقق اليدوي من هوية المتجر وتخزينها في مساحة محمية مشفرة.
+                            </label>
+                        </div>
+                    </div>
+                    <span asp-validation-for="PrivacyNoticeAcknowledged" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 mt-4">
+                    <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill shadow">
+                        إرسال المستندات للتحقق <i class="bi bi-send-check ms-1"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+}
